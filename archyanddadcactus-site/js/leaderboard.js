@@ -23,8 +23,8 @@
       "anon public" key, and paste them below.
    ============================================================ */
 const LEADERBOARD_CONFIG = {
-  supabaseUrl: '',      // e.g. 'https://abcd1234.supabase.co'
-  supabaseAnonKey: '',  // e.g. 'eyJhbGciOi...'
+  supabaseUrl: 'https://dvrrukhnzwcaqddijirx.supabase.co',
+  supabaseAnonKey: 'sb_publishable_NXVogwBYIcfuJCps9bmd8g_x3aesZ51',
   table: 'highscores'
 };
 
