@@ -36,7 +36,7 @@
 
 <section>
   <div class="wrap">
-    <form class="form card" id="waitForm" action="https://formspree.io/f/your-form-id" method="POST">
+    <form class="form card" id="waitForm">
       <div>
         <label for="name">Name</label>
         <input id="name" name="name" required placeholder="Your name">
@@ -49,7 +49,6 @@
         <label for="msg">Message (optional)</label>
         <textarea id="msg" name="message" rows="4" placeholder="Tell us about your little grower!"></textarea>
       </div>
-      <input type="hidden" name="_subject" value="New cactus kit waitlist signup">
       <button class="btn green" type="submit">Join the waitlist 🌵</button>
       <p class="muted" id="formNote" style="font-size:13px;text-align:center"></p>
     </form>
@@ -71,13 +70,33 @@
 </footer>
 
 <script>
-  // The form posts to Formspree. Create a free form at https://formspree.io,
-  // then replace 'your-form-id' in the action above with your real form ID.
+  const SUPA_URL = 'https://dvrrukhnzwcaqddijirx.supabase.co';
+  const SUPA_KEY = 'sb_publishable_NXVogwBYIcfuJCps9bmd8g_x3aesZ51';
   const form = document.getElementById('waitForm');
   const note = document.getElementById('formNote');
-  if(form.action.indexOf('your-form-id')>-1){
-    note.textContent = 'Setup note: connect this form to Formspree (or your email service) to start collecting signups.';
-  }
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name=(document.getElementById('name').value||'').trim();
+    const email=(document.getElementById('email').value||'').trim();
+    const message=(document.getElementById('msg').value||'').trim();
+    if(!name || !email){ note.textContent='Please add your name and email.'; return; }
+    note.textContent='Joining\u2026';
+    try{
+      const r = await fetch(SUPA_URL+'/rest/v1/waitlist', {
+        method:'POST',
+        headers:{ apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY,
+                  'Content-Type':'application/json', Prefer:'return=minimal' },
+        body: JSON.stringify({ name, email, message: message||null })
+      });
+      if(r.ok){
+        form.innerHTML='<div class="center" style="padding:14px 6px"><div style="font-size:54px">\ud83c\udf35</div><h3>You\u2019re on the list!</h3><p class="muted" style="margin-top:6px">Thanks '+name.replace(/[<>&]/g,'')+' \u2014 we\u2019ll email you the moment the kits are ready.</p></div>';
+      } else {
+        note.textContent='Hmm, something went wrong. Please try again, or email hello@archyanddad.com.au.';
+      }
+    }catch(err){
+      note.textContent='Network error \u2014 please try again, or email hello@archyanddad.com.au.';
+    }
+  });
 </script>
 </body>
 </html>
