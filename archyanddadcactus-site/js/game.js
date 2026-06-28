@@ -536,7 +536,7 @@
     ctx.fillText('★ BONUS ★   '+Math.ceil(bTime)+'s', W/2, 66);
     ctx.restore();
   }
-  function launchBonus(){ state.bonusCount=(state.bonusCount||0)+1; if(state.bonusCount%2===1) startBonus(); else startDance(); }
+  function launchBonus(){ state.bonusCount=(state.bonusCount||0)+1; startBonus(); }  /* dance round disabled for now */
   function startDance(){
     state.mode='dance';
     dArrows=[]; dParts=[]; dSpawnT=0.8; dTime=20; dStreak=0; dMult=1; dFlash={left:0,down:0,up:0,right:0};
