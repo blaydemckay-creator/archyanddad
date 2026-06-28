@@ -197,7 +197,7 @@
       }
       mothT -= dt;
       if(mothT<=0){
-        obstacles.push({x:W+40, w:40, h:26, type:'moth', ay:ground-(70+Math.random()*180), bob:Math.random()*6});
+        obstacles.push({x:W+40, w:40, h:26, type:'moth', ay:25+Math.random()*(ground-95), bob:Math.random()*6});
         mothT = (1.5 + Math.random()*1.3) * (300/state.speed) + 0.5;
       }
     }
