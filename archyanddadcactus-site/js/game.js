@@ -37,7 +37,7 @@
   ];
 
   const ground = H - 80;
-  const state = { mode:'start', t:0, speed:300, dist:0, water:0, sun:0, score:0, speedLock:0,
+  const state = { mode:'start', t:0, speed:300, dist:0, water:0, sun:0, score:0, speedLock:0, streak:0, mult:1, bonus:0,
     fiveSpawned:false, fiveGot:false, comboGot:false, bloomed:false, hintShown:false, mothWarned:false };
   let best = 0;
   try{ best = parseInt(localStorage.getItem('sps_best')||'0',10)||0; }catch(e){}
@@ -67,7 +67,7 @@
   }
 
   function reset(arm){
-    Object.assign(state,{mode:'play',t:0,speed:300,dist:0,water:0,sun:0,score:0,armed:!!arm,speedLock:0,
+    Object.assign(state,{mode:'play',t:0,speed:300,dist:0,water:0,sun:0,score:0,armed:!!arm,speedLock:0,streak:0,mult:1,bonus:0,
       fiveSpawned:false,fiveGot:false,comboGot:false,bloomed:false,hintShown:false,mothWarned:false});
     player.y=ground; player.vy=0; player.onGround=true; player.jumps=0; player.squash=0;
     obstacles=[]; collects=[]; spawnT=0.8; collectT=0.5; mothT=1.2; tipT=4.5;
@@ -171,7 +171,7 @@
     if(!state.armed){ return; }   // waiting on the instructions screen
 
     state.dist += move/26;
-    state.score = Math.floor(state.dist) + (state.water+state.sun)*10;
+    state.score = Math.floor(state.dist) + state.bonus;
 
     spawnT -= dt;
     if(spawnT<=0){
@@ -217,9 +217,15 @@
       const dx=player.x-c.x, dy=(player.y-player.h/2)-c.y;
       if(Math.hypot(dx,dy)<c.r+30){
         c.got=true;
-        if(c.type==='sun') state.sun++;
-        else if(c.type==='water') state.water++;
+        if(c.type==='sun'||c.type==='water'){
+          if(c.type==='sun') state.sun++; else state.water++;
+          state.streak++;
+          state.mult = Math.min(5, 1 + Math.floor(state.streak/4));   // x2 at 4, x3 at 8 ... cap x5
+          state.bonus += 25 * state.mult;
+        }
         else if(c.type==='five'){ state.fiveGot=true; showBanner('🏷️ 5% off unlocked! Collect '+COMBO_WATER+'💧 + '+COMBO_SUN+'☀️ for another 5%.', 4200); }
+      } else if((c.type==='sun'||c.type==='water') && !c.missed && c.x < player.x-32){
+        c.missed=true; state.streak=0; state.mult=1;   // let one slip past -> streak resets
       }
     }
     if(!state.comboGot && state.water>=COMBO_WATER && state.sun>=COMBO_SUN){
@@ -417,6 +423,15 @@
     });
     obstacles.forEach(o=>drawObstacle(o));
     drawCactus();
+    if(state.armed && state.mult>1){
+      ctx.save();
+      ctx.font='bold 24px Quicksand,Segoe UI,sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#f0a83d'; ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.lineWidth=4;
+      const txt='STREAK x'+state.mult;
+      ctx.strokeText(txt, W/2, 66); ctx.fillText(txt, W/2, 66);
+      ctx.restore();
+    }
   }
   let last=performance.now();
   function frame(now){
