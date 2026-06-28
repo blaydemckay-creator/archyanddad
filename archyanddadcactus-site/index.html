@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archy &amp; Dad Cactus Co. — Grow a cactus, grow a bond</title>
+<meta name="description" content="A father-and-son journey growing San Pedro cactus from seed. Get the complete grow-from-seed kit with 10 cactus seeds — and beat Archy in our game for rewards.">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=13">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html"><img class="brand-logo" src="assets/logo.png" alt="Archy & Dad Cactus Co. logo"> Archy &amp; Dad Cactus Co.</a>
+    <button class="nav-toggle" aria-label="Menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html" class="active">Home</a>
+      <a href="story.html">Our Story</a>
+      <a href="kit.html">The Kit</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="banner">🏆 Beat Archy in our game — collect rewards &amp; discounts along the way!</div>
+
+<section id="play" class="top-game">
+  <div class="wrap game-area">
+    <div id="wrap">
+      <canvas id="game"></canvas>
+      <div id="hud">
+        <div class="pill">⭐ <span id="score">0</span></div>
+        <div class="pill">💧 <span id="water">0</span></div>
+        <div class="pill">☀️ <span id="sun">0</span></div>
+      </div>
+      <div id="banner"></div>
+      <div id="startScreen" class="overlay">
+        <div class="gtitle">San Pedro Sprint<small>Beat Archy!</small></div>
+        <div class="gsub">Jump the roos, emus &amp; crocs. Collect 💧 &amp; ☀️ for discounts. At 700 your flower blooms — keep tapping to FLY! Then watch for angry cactus moths.</div>
+        <div class="press-key">Press the <kbd>SPACE BAR</kbd> to begin</div>
+        <div class="hint">Space / Click / Tap to jump · double-tap to double jump</div>
+      </div>
+      <div id="overScreen" class="overlay hidden">
+        <div class="gtitle" style="font-size:clamp(22px,4.5vw,36px)">Ouch! 🌵</div>
+        <div class="score-line" style="font-size:26px;font-weight:800">⭐ <span id="finalScore">0</span></div>
+        <div class="gsub">💧 <span id="finalWater">0</span> &nbsp;·&nbsp; ☀️ <span id="finalSun">0</span><br><span id="bestLine" style="opacity:.85"></span></div>
+        <div class="reward-list" id="rewardLine"></div>
+        <div class="namebox">
+          <input id="nameInput" maxlength="16" placeholder="Your name for the board">
+          <button class="btn green" id="saveBtn" style="padding:11px 20px">Save score</button>
+        </div>
+        <div class="hint" id="saveMsg"></div>
+        <button class="btn" id="againBtn">Run again</button>
+      </div>
+    </div>
+
+    <div class="intro-panel">
+      <div class="mascot">
+        <div id="archyBubble" class="bubble"></div>
+        <img class="hero-logo" src="assets/logo.png" alt="Archy and Dad cactus mascots">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="info" style="padding-top:30px">
+  <div class="wrap">
+    <div class="panel lb-panel">
+      <h3>🏆 High Scores</h3>
+      <ol class="lb-list" id="lbList"><li class="muted" style="justify-content:center">Loading…</li></ol>
+      <p class="muted" id="lbMode" style="font-size:12px;margin-top:10px;text-align:center"></p>
+    </div>
+
+    <div class="reward-cards">
+      <div class="rc"><div class="ic">🏷️</div><h4>5% off</h4><p class="muted">Grab the floating reward tag mid-run.</p></div>
+      <div class="rc"><div class="ic">💧☀️</div><h4>+5% off</h4><p class="muted">Collect 25 water drops and 15 suns in one run.</p></div>
+      <div class="rc"><div class="ic">🚚</div><h4>Free shipping</h4><p class="muted">Set a new high score on the board.</p></div>
+    </div>
+    <div class="note">Discounts stack up to <strong>10% off</strong> and apply automatically at checkout. Free shipping is added on top when you top the board. 🌵</div>
+  </div>
+</section>
+
+<section style="background:var(--cream-2);padding-top:54px">
+  <div class="wrap grid-2">
+    <div>
+      <h2>From one tiny seed</h2>
+      <p>It started with a single packet of San Pedro seeds on the kitchen table. Months of misting, watching, and "Dad, is it bigger today?" turned into a little windowsill jungle — and a whole lot of memories.</p>
+      <p style="margin-top:14px">We bottled that experience into a kit so your family can share the same slow, satisfying magic of growing something from scratch.</p>
+      <a class="btn green" href="story.html" style="margin-top:18px">Read our story</a>
+    </div>
+    <div class="card center">
+      <div style="font-size:90px;line-height:1">🌱→🌵</div>
+      <p class="muted" style="margin-top:10px">Seed to seedling, together.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="brand" style="color:#fff"><span class="logo">🌵</span> Archy &amp; Dad Cactus Co.</div>
+        <p style="margin-top:10px;max-width:280px;opacity:.85">Father-and-son grown, in Australia. Growing cactus and good memories.</p>
+      </div>
+      <div><strong>Explore</strong><br><a href="story.html">Our Story</a><br><a href="kit.html">The Kit</a><br><a href="contact.html">Contact</a></div>
+      <div><strong>Get in touch</strong><br><a href="mailto:hello@archyanddad.com.au">hello@archyanddad.com.au</a></div>
+    </div>
+    <div class="small">© 2026 Archy &amp; Dad Cactus Co. · archyanddad.com.au · ABN [your ABN here]</div>
+  </div>
+</footer>
+
+<script> window.SPS = { last:null, onGameOver:function(r){ this.last=r; } }; </script>
+<script src="js/leaderboard.js?v=13"></script>
+<script src="js/game.js?v=13"></script>
+<script>
+  const lbList=document.getElementById('lbList');
+  function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  async function renderLB(){
+    try{
+      const rows = await Leaderboard.top(10);
+      if(!rows || !rows.length){ lbList.innerHTML='<li class="muted" style="justify-content:center">No scores yet — be the first!</li>'; return; }
+      lbList.innerHTML = rows.map((r,i)=>`<li><span class="rank">${i+1}</span><span class="nm">${escapeHtml(r.name)}</span><span class="sc">${r.score}</span></li>`).join('');
+    }catch(e){ lbList.innerHTML='<li class="muted" style="justify-content:center">Couldn’t load scores.</li>'; }
+  }
+  const saveBtn=document.getElementById('saveBtn');
+  if(saveBtn) saveBtn.addEventListener('click', async ()=>{
+    const name=(document.getElementById('nameInput').value||'').trim()||'Anonymous';
+    const score = (window.SPS.last && window.SPS.last.score) || 0;
+    document.getElementById('saveMsg').textContent='Saving…';
+    await Leaderboard.submit(name, score);
+    document.getElementById('saveMsg').textContent='Saved! 🌵';
+    renderLB();
+  });
+  if(!Leaderboard.isOnline()){ document.getElementById('lbMode').textContent='Scores save on this device. Connect a database (see js/leaderboard.js) for a global board.'; }
+  renderLB();
+</script>
+</body>
+</html>

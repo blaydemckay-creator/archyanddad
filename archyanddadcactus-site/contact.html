@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact &amp; Waitlist — Archy &amp; Dad Cactus Co.</title>
+<meta name="description" content="Join the waitlist for the Archy & Dad grow-from-seed cactus kit, or just say g'day.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="stylesheet" href="css/style.css?v=4">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html"><img class="brand-logo" src="assets/logo.png" alt="Archy & Dad Cactus Co. logo"> Archy &amp; Dad Cactus Co.</a>
+    <button class="nav-toggle" aria-label="Menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="story.html">Our Story</a>
+      <a href="kit.html">The Kit</a>
+      <a href="contact.html" class="active">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap" style="display:block;text-align:center">
+    <h1>Join the waitlist</h1>
+    <p class="lead" style="max-width:600px;margin:14px auto 0">We're hand-packing the first batch of kits now. Pop your details in and we'll let you know the second they're ready — early-list folks get first dibs.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <form class="form card" id="waitForm" action="https://formspree.io/f/your-form-id" method="POST">
+      <div>
+        <label for="name">Name</label>
+        <input id="name" name="name" required placeholder="Your name">
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required placeholder="you@example.com">
+      </div>
+      <div>
+        <label for="msg">Message (optional)</label>
+        <textarea id="msg" name="message" rows="4" placeholder="Tell us about your little grower!"></textarea>
+      </div>
+      <input type="hidden" name="_subject" value="New cactus kit waitlist signup">
+      <button class="btn green" type="submit">Join the waitlist 🌵</button>
+      <p class="muted" id="formNote" style="font-size:13px;text-align:center"></p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="brand" style="color:#fff"><span class="logo">🌵</span> Archy &amp; Dad Cactus Co.</div>
+        <p style="margin-top:10px;max-width:280px;opacity:.85">Father-and-son grown, in Australia. Growing cactus and good memories.</p>
+      </div>
+      <div><strong>Explore</strong><br><a href="story.html">Our Story</a><br><a href="kit.html">The Kit</a><br><a href="contact.html">Contact</a></div>
+      <div><strong>Get in touch</strong><br><a href="mailto:hello@archyanddad.com.au">hello@archyanddad.com.au</a></div>
+    </div>
+    <div class="small">© 2026 Archy &amp; Dad Cactus Co. · archyanddad.com.au · ABN [your ABN here]</div>
+  </div>
+</footer>
+
+<script>
+  // The form posts to Formspree. Create a free form at https://formspree.io,
+  // then replace 'your-form-id' in the action above with your real form ID.
+  const form = document.getElementById('waitForm');
+  const note = document.getElementById('formNote');
+  if(form.action.indexOf('your-form-id')>-1){
+    note.textContent = 'Setup note: connect this form to Formspree (or your email service) to start collecting signups.';
+  }
+</script>
+</body>
+</html>

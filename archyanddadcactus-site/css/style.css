@@ -1,0 +1,190 @@
+/* Archy & Dad Cactus Co. — shared styles */
+:root{
+  --green:#5a8a4e; --green-dark:#3f6b3a; --green-light:#7aa86a;
+  --terra:#c87a4e; --terra-dark:#b3683f;
+  --cream:#ffffff; --cream-2:#ffffff;
+  --sand:#e7cf9f; --ink:#33402e; --muted:#6b7a5f;
+  --sun:#f4c95d; --sky:#cfe3ef;
+  --shadow:0 14px 36px rgba(60,70,50,.18);
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Quicksand','Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;
+  color:var(--ink); background:var(--cream);
+  line-height:1.6; font-size:17px;
+}
+h1,h2,h3{font-weight:700;line-height:1.15;color:var(--green-dark);}
+h1{font-size:clamp(30px,5vw,52px);}
+h2{font-size:clamp(24px,3.5vw,36px);}
+a{color:var(--green-dark);text-decoration:none;}
+img{max-width:100%;display:block;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px;}
+section{padding:64px 0;}
+.center{text-align:center;}
+.muted{color:var(--muted);}
+
+/* nav */
+header.nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(8px);
+  border-bottom:2px solid rgba(90,138,78,.15);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;color:var(--green-dark);}
+.brand .logo{width:38px;height:38px;border-radius:50%;background:var(--green);display:grid;place-items:center;font-size:20px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);}
+.brand .brand-logo{width:46px;height:46px;object-fit:contain;display:block;}
+.nav-links{display:flex;gap:8px;align-items:center;}
+.nav-links a{padding:9px 15px;border-radius:30px;font-weight:600;color:var(--ink);}
+.nav-links a:hover{background:rgba(90,138,78,.12);}
+.nav-links a.active{background:var(--green);color:#fff;}
+.nav-toggle{display:none;background:none;border:none;font-size:26px;cursor:pointer;color:var(--green-dark);}
+
+/* buttons */
+.btn{
+  display:inline-block;border:none;cursor:pointer;font-family:inherit;
+  font-weight:700;font-size:16px;padding:13px 28px;border-radius:40px;
+  background:var(--sun);color:#3a2f12;box-shadow:0 5px 0 #c79a36;
+  transition:transform .08s ease, box-shadow .08s ease;text-align:center;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #c79a36;}
+.btn.green{background:var(--green);color:#fff;box-shadow:0 5px 0 var(--green-dark);}
+.btn.green:active{box-shadow:0 1px 0 var(--green-dark);}
+.btn.outline{background:transparent;color:var(--green-dark);box-shadow:inset 0 0 0 2px var(--green);}
+.btn.outline:active{transform:translateY(2px);}
+
+/* hero */
+.hero{background:#fff;position:relative;overflow:hidden;}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center;}
+.hero p.lead{font-size:clamp(16px,2vw,20px);margin:16px 0 26px;color:var(--ink);}
+.hero .cta{display:flex;gap:14px;flex-wrap:wrap;}
+.hero-art{background:transparent;display:flex;align-items:center;justify-content:center;}
+.hero-art .ph{aspect-ratio:1;border-radius:16px;background:radial-gradient(circle at 50% 40%,#fff,#eef5ee);display:grid;place-items:center;font-size:120px;}
+
+/* banner */
+.banner{
+  background:var(--green);color:#fff;text-align:center;
+  padding:16px 22px;font-weight:700;font-size:clamp(15px,2.2vw,20px);
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+}
+
+/* game */
+.game-area{display:grid;grid-template-columns:1.6fr 1fr;gap:26px;align-items:start;}
+#wrap{
+  position:relative;width:100%;aspect-ratio:16/9;
+  border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow);background:var(--sky);
+}
+#wrap canvas{display:block;width:100%;height:100%;}
+.overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:12px;padding:20px;background:rgba(46,59,46,.6);backdrop-filter:blur(3px);color:#fff;
+  transition:opacity .25s ease;
+}
+.overlay.hidden{opacity:0;pointer-events:none;}
+.overlay .gtitle{font-size:clamp(24px,5vw,44px);font-weight:800;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.18);}
+.overlay .gtitle small{display:block;font-size:.4em;letter-spacing:3px;text-transform:uppercase;opacity:.9;margin-top:6px;}
+.overlay .gsub{font-size:clamp(12px,2.2vw,16px);max-width:420px;opacity:.92;}
+.overlay .hint{font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.8;}
+.press-key{font-size:clamp(15px,2.8vw,21px);font-weight:800;margin:2px 0;color:#fff;}
+.press-key kbd{display:inline-block;background:#fff;color:#3a2f12;border-radius:9px;padding:5px 13px;margin:0 2px;
+  font-family:inherit;font-weight:800;box-shadow:0 3px 0 rgba(0,0,0,.28);letter-spacing:1px;}
+.namebox{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
+.namebox input{font-family:inherit;font-size:15px;padding:11px 14px;border-radius:30px;border:none;width:180px;text-align:center;}
+.reward-list{font-size:clamp(12px,2.2vw,15px);font-weight:700;line-height:1.7;}
+#hud{position:absolute;top:12px;left:14px;right:14px;display:flex;justify-content:space-between;gap:8px;
+  font-weight:800;color:#3f4d3a;text-shadow:0 1px 0 rgba(255,255,255,.5);pointer-events:none;font-size:clamp(13px,2.4vw,19px);}
+#hud .pill{background:rgba(255,255,255,.62);border-radius:30px;padding:5px 13px;}
+#banner{position:absolute;top:56px;left:50%;transform:translateX(-50%) translateY(-12px);
+  background:rgba(90,138,78,.96);color:#fff;font-weight:800;padding:9px 20px;border-radius:30px;
+  font-size:clamp(12px,2.4vw,16px);box-shadow:0 8px 22px rgba(0,0,0,.28);opacity:0;pointer-events:none;
+  transition:opacity .3s ease,transform .3s ease;text-align:center;max-width:90%;}
+#banner.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* leaderboard + reward cards */
+.panel{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;border:3px solid rgba(90,138,78,.1);}
+.panel h3{margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.lb-list{list-style:none;}
+.lb-list li{display:flex;justify-content:space-between;padding:8px 10px;border-radius:10px;font-weight:600;}
+.lb-list li:nth-child(odd){background:rgba(90,138,78,.07);}
+.lb-list li .rank{color:var(--terra);font-weight:800;width:26px;}
+.lb-list li .nm{flex:1;padding:0 8px;}
+.lb-list li .sc{font-weight:800;color:var(--green-dark);}
+.reward-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px;}
+.rc{background:var(--cream-2);border-radius:16px;padding:20px;text-align:center;border:2px solid rgba(90,138,78,.12);}
+.rc .ic{font-size:38px;}
+.rc h4{color:var(--green-dark);margin:8px 0 4px;}
+.note{background:rgba(244,201,93,.18);border-radius:14px;padding:14px 18px;margin-top:18px;text-align:center;font-weight:600;}
+
+/* generic cards / story */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;border:3px solid rgba(90,138,78,.1);}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:30px;}
+.step{text-align:center;}
+.step .num{width:46px;height:46px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:20px;margin:0 auto 10px;}
+
+/* kit */
+.kit{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:start;}
+.price-card{position:sticky;top:90px;}
+.price{font-size:42px;font-weight:800;color:var(--green-dark);}
+.price .was{font-size:20px;color:var(--muted);text-decoration:line-through;margin-left:10px;}
+.reward-badge{background:var(--green);color:#fff;border-radius:30px;padding:8px 16px;display:inline-block;font-weight:700;margin:12px 0;}
+.includes{list-style:none;margin-top:10px;}
+.includes li{padding:9px 0;border-bottom:1px dashed rgba(90,138,78,.25);display:flex;gap:10px;align-items:flex-start;}
+.includes li::before{content:'🌵';}
+
+/* forms */
+.form{display:grid;gap:14px;max-width:460px;margin:0 auto;}
+.form input,.form textarea{font-family:inherit;font-size:16px;padding:13px 16px;border-radius:14px;border:2px solid rgba(90,138,78,.25);background:#fff;width:100%;}
+.form input:focus,.form textarea:focus{outline:none;border-color:var(--green);}
+.form label{font-weight:600;font-size:14px;color:var(--muted);}
+
+/* footer */
+footer{background:var(--green-dark);color:#e8f0e2;padding:40px 0 28px;margin-top:30px;}
+footer .cols{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;}
+footer a{color:#cfe0c6;}
+footer a:hover{color:#fff;}
+footer .small{font-size:13px;opacity:.8;margin-top:22px;text-align:center;width:100%;}
+
+@media(max-width:880px){
+  .hero .wrap,.game-area,.grid-2,.kit{grid-template-columns:1fr;}
+  .reward-cards,.steps{grid-template-columns:1fr 1fr;}
+  .nav-links{position:absolute;top:68px;left:0;right:0;background:var(--cream);flex-direction:column;
+    padding:10px 22px;gap:4px;display:none;border-bottom:2px solid rgba(90,138,78,.15);}
+  .nav-links.open{display:flex;}
+  .nav-toggle{display:block;}
+  .price-card{position:static;}
+}
+@media(max-width:520px){ .reward-cards,.steps{grid-template-columns:1fr;} }
+
+/* ---- home: game-first layout + Archy speech bubble ---- */
+.top-game{padding-top:30px;padding-bottom:30px;}
+.game-area{gap:12px;align-items:center;}            /* logo sits close to the game */
+.intro-panel{display:flex;align-items:center;justify-content:flex-start;}
+.mascot{position:relative;max-width:300px;width:100%;}
+.mascot .hero-logo{width:100%;max-width:290px;display:block;}
+.lb-panel{max-width:560px;margin:0 auto;}
+.mascot .bubble{
+  position:absolute; left:68%; bottom:40%;           /* lower & to the right, beside Archy's head */
+  width:max-content; max-width:210px;
+  background:#fff; color:#33402e; font-weight:600;
+  font-size:18px; line-height:1.45; text-align:left;
+  padding:14px 18px; border-radius:22px;
+  box-shadow:0 12px 26px rgba(0,0,0,.18); border:2px solid #cfe0c6;
+  opacity:0; transform:translateY(8px) scale(.96);
+  transition:opacity .22s ease, transform .22s ease; pointer-events:none; z-index:6;
+}
+.mascot .bubble::after{ content:''; position:absolute; left:14px; bottom:-12px;   /* tail down into Archy's mouth */
+  border:10px solid transparent; border-top-color:#fff; }
+.mascot .bubble::before{ content:''; position:absolute; left:13px; bottom:-16px;
+  border:11px solid transparent; border-top-color:#cfe0c6; }
+.mascot .bubble.show{opacity:1; transform:translateY(0) scale(1);}
+.mascot .bubble .who{color:var(--green);font-weight:800;margin-right:4px;}
+@media(max-width:880px){
+  .game-area{align-items:start;}
+  .mascot{max-width:340px;margin:14px auto 0;}
+  .mascot .bubble{left:auto;right:4%;bottom:100%;margin-bottom:10px;max-width:80%;font-size:16px;}
+  .mascot .bubble::after{left:auto;right:40px;}
+  .mascot .bubble::before{left:auto;right:39px;}
+}

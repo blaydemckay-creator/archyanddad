@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kit — Archy &amp; Dad Cactus Co.</title>
+<meta name="description" content="The Archy & Dad grow-from-seed starter kit: 10 San Pedro cactus seeds plus everything a family needs to grow them together.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="stylesheet" href="css/style.css?v=4">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html"><img class="brand-logo" src="assets/logo.png" alt="Archy & Dad Cactus Co. logo"> Archy &amp; Dad Cactus Co.</a>
+    <button class="nav-toggle" aria-label="Menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="story.html">Our Story</a>
+      <a href="kit.html" class="active">The Kit</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap" style="display:block;text-align:center">
+    <h1>The Father &amp; Son Starter Kit</h1>
+    <p class="lead" style="max-width:640px;margin:14px auto 0">Everything you need to grow San Pedro cactus from seed together — in one box, with 10 of our favourite seeds.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap kit">
+    <div>
+      <div class="card center" style="margin-bottom:22px">
+        <div style="font-size:96px;line-height:1">📦🌵</div>
+        <p class="muted" style="margin-top:8px">Product photo coming soon</p>
+      </div>
+      <h2>What's in the box</h2>
+      <ul class="includes">
+        <li><strong>10 San Pedro cactus seeds</strong> — hand-picked from our own grow.</li>
+        <li><strong>Seed-raising mix &amp; perlite</strong> — pre-blended, ready to sow.</li>
+        <li><strong>Mini pots &amp; humidity dome</strong> — the setup that gave us the best strike rate.</li>
+        <li><strong>Step-by-step grow guide</strong> — written for doing it with a kid.</li>
+        <li><strong>Archy's Growth Journal</strong> — a fun chart to track sprouts week by week.</li>
+        <li><strong>Plant markers &amp; stickers</strong> — because every seedling needs a name.</li>
+      </ul>
+    </div>
+
+    <div class="price-card">
+      <div class="panel">
+        <h3>Your Starter Kit</h3>
+        <div class="price" id="priceNow">$49.95 <span class="was" id="priceWas" style="display:none"></span></div>
+        <p class="muted">AUD, incl. GST</p>
+        <div id="rewardBadge"></div>
+        <div id="shipLine" class="muted" style="margin:6px 0 14px">Flat-rate shipping calculated at checkout.</div>
+        <a class="btn green" href="contact.html" style="width:100%">Pre-order / notify me</a>
+        <p class="muted" style="font-size:13px;margin-top:12px;text-align:center">Kits are hand-packed in small batches. Join the list and we'll let you know the moment they're ready.</p>
+      </div>
+      <div class="note" id="rewardNote" style="display:none"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="brand" style="color:#fff"><span class="logo">🌵</span> Archy &amp; Dad Cactus Co.</div>
+        <p style="margin-top:10px;max-width:280px;opacity:.85">Father-and-son grown, in Australia. Growing cactus and good memories.</p>
+      </div>
+      <div><strong>Explore</strong><br><a href="story.html">Our Story</a><br><a href="kit.html">The Kit</a><br><a href="contact.html">Contact</a></div>
+      <div><strong>Get in touch</strong><br><a href="mailto:hello@archyanddad.com.au">hello@archyanddad.com.au</a></div>
+    </div>
+    <div class="small">© 2026 Archy &amp; Dad Cactus Co. · archyanddad.com.au · ABN [your ABN here]</div>
+  </div>
+</footer>
+
+<script>
+  // ---- EDIT THIS to set your real kit price (AUD) ----
+  const KIT_PRICE = 49.95;
+  // -----------------------------------------------------
+  function fmt(n){ return '$'+n.toFixed(2); }
+  let reward = {discount:0, freeShipping:false};
+  try{ reward = Object.assign(reward, JSON.parse(localStorage.getItem('sps_reward')||'{}')); }catch(e){}
+  const disc = Math.min(10, reward.discount||0);
+  const priceNow = document.getElementById('priceNow');
+  const priceWas = document.getElementById('priceWas');
+  const badge = document.getElementById('rewardBadge');
+  const note = document.getElementById('rewardNote');
+  const shipLine = document.getElementById('shipLine');
+
+  if(disc>0){
+    const final = KIT_PRICE * (1 - disc/100);
+    priceNow.childNodes[0].nodeValue = fmt(final)+' ';
+    priceWas.style.display='inline';
+    priceWas.textContent = fmt(KIT_PRICE);
+    badge.innerHTML = '<span class="reward-badge">🏷️ '+disc+'% game discount applied</span>';
+  }else{
+    priceNow.childNodes[0].nodeValue = fmt(KIT_PRICE)+' ';
+  }
+  if(reward.freeShipping){
+    shipLine.innerHTML = '🚚 <strong>Free shipping unlocked!</strong> (high-score reward)';
+  }
+  if(disc>0 || reward.freeShipping){
+    note.style.display='block';
+    note.innerHTML = 'Your game rewards are saved and will be applied automatically to your order. 🎮🌵 '
+      + '<br><a href="index.html#play">Play again to beat your best →</a>';
+  }else{
+    note.style.display='block';
+    note.innerHTML = '🎮 <a href="index.html#play">Beat Archy in the game</a> to unlock up to 10% off + free shipping — applied here automatically.';
+  }
+</script>
+</body>
+</html>
