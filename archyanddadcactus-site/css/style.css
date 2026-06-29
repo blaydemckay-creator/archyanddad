@@ -300,3 +300,12 @@ body.mushroom .brand{color:#7a4a28;}
 .mg-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .mg-reward-badge{background:rgba(181,118,74,.14);border:2px solid rgba(181,118,74,.32);
   border-radius:14px;padding:12px 16px;text-align:center;font-weight:700;color:#7a4a28;margin-top:16px;}
+
+/* ===== Mushroom tab: mascot bubble + leaderboard theming ===== */
+body.mushroom .mascot .bubble{border-color:#e6c8ac;}
+body.mushroom .mascot .bubble::after{border-top-color:#fff;}
+body.mushroom .mascot .bubble::before{border-top-color:#e6c8ac;}
+body.mushroom .mascot .bubble .who{color:#b5764a;}
+body.mushroom .lb-list li:nth-child(odd){background:rgba(181,118,74,.08);}
+body.mushroom .lb-list li .sc{color:#7a4a28;}
+body.mushroom .panel{border-color:rgba(181,118,74,.16);}
