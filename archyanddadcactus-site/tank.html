@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dad vs Archy — a 2-player tank duel | Archy &amp; Dad</title>
+<meta name="description" content="Dad vs Archy: a fun two-player tank battle you can play with your kid on one keyboard. Just for fun — take turns, mind the wind, first to 3 hits wins!">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=21">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html"><img class="brand-logo" src="assets/umbrella-logo.png" alt="Archy & Dad logo"> Archy &amp; Dad</a>
+    <button class="nav-toggle" aria-label="Menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="cactus.html">🌵 Cactus Co</a>
+      <a href="mushroom.html">🍄 Mushroom Co</a>
+      <a href="tank.html" class="active">🎮 Dad vs Archy</a>
+      <a href="contact.html">Join</a>
+    </nav>
+  </div>
+</header>
+
+<div class="banner" style="background:#4a6b8a">🎮 Dad vs Archy — grab a sibling or take on Dad on the same keyboard. Just for fun!</div>
+
+<section class="top-game" style="padding-top:26px">
+  <div class="wrap">
+    <h2 class="center" style="margin-bottom:6px">🎮 Dad vs Archy — Tank Duel</h2>
+    <p class="center muted" style="max-width:580px;margin:0 auto 20px">Two players, one keyboard. Take turns aiming your tank, mind the wind, and lob a shell over the hill. First to 3 hits wins — no prizes, just bragging rights!</p>
+
+    <div class="dva-frame">
+      <canvas id="dvaCanvas"></canvas>
+    </div>
+
+    <div class="dva-controls">
+      <button id="dAngMinus">Angle −</button>
+      <button id="dAngPlus">Angle +</button>
+      <button id="dPowMinus">Power −</button>
+      <button id="dPowPlus">Power +</button>
+      <button id="dFire" class="fire">🔥 FIRE</button>
+    </div>
+    <p class="dva-key">Keyboard: <b>← →</b> aim · <b>↑ ↓</b> power · <b>SPACE</b> fire. Players take turns on the same keyboard.</p>
+  </div>
+</section>
+
+<section style="background:var(--cream-2)">
+  <div class="wrap grid-2">
+    <div>
+      <h2>How to play</h2>
+      <p>It's a friendly artillery duel. On your turn, set your <strong>angle</strong> and <strong>power</strong>, check the <strong>wind</strong> at the top, and fire over the hill. Land a shell on the other tank to score. First to <strong>3 hits</strong> takes the match.</p>
+      <p style="margin-top:14px">Because it's all about aim and not reflexes, it's a fair fight whether you're a little tacker or the old man. Perfect for a quick round at the kitchen table. 🎮</p>
+      <a class="btn green" href="cactus.html" style="margin-top:18px">Back to the grow games 🌵</a>
+    </div>
+    <div class="card center">
+      <div style="font-size:80px;line-height:1">🪖💥</div>
+      <p class="muted" style="margin-top:10px">Archy (red) vs Dad (orange). Mind the wind!</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="brand" style="color:#fff"><span class="logo">👨‍👦</span> Archy &amp; Dad</div>
+        <p style="margin-top:10px;max-width:280px;opacity:.85">A father and son, growing things — and good memories — together in Australia.</p>
+      </div>
+      <div><strong>Adventures</strong><br><a href="cactus.html">🌵 Cactus Co</a><br><a href="mushroom.html">🍄 Mushroom Co</a><br><a href="tank.html">🎮 Dad vs Archy</a></div>
+      <div><strong>Get in touch</strong><br><a href="contact.html">Join the waitlist</a><br><a href="mailto:hello@archyanddad.com.au">hello@archyanddad.com.au</a></div>
+    </div>
+    <div class="small">© 2026 Archy &amp; Dad · archyanddad.com.au · ABN [your ABN here]</div>
+  </div>
+</footer>
+
+<script src="js/dva.js?v=1"></script>
+<script>
+  (function(){
+    function hold(id, downFn, upFn){
+      const b=document.getElementById(id); if(!b) return;
+      const dn=e=>{ e.preventDefault(); downFn(); };
+      const up=()=>{ upFn&&upFn(); };
+      b.addEventListener('pointerdown',dn); b.addEventListener('pointerup',up);
+      b.addEventListener('pointerleave',up); b.addEventListener('pointercancel',up);
+    }
+    hold('dAngMinus', ()=>window.DVA&&DVA.aim(-1), ()=>window.DVA&&DVA.aimStop());
+    hold('dAngPlus',  ()=>window.DVA&&DVA.aim(1),  ()=>window.DVA&&DVA.aimStop());
+    hold('dPowMinus', ()=>window.DVA&&DVA.pow(-1), ()=>window.DVA&&DVA.powStop());
+    hold('dPowPlus',  ()=>window.DVA&&DVA.pow(1),  ()=>window.DVA&&DVA.powStop());
+    const f=document.getElementById('dFire'); if(f) f.addEventListener('click', ()=>window.DVA&&DVA.fire());
+  })();
+</script>
+</body>
+</html>
