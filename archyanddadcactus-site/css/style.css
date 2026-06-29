@@ -248,3 +248,39 @@ body.mushroom .brand{color:#7a4a28;}
 .kside .how{background:#fff;border-radius:16px;padding:18px;box-shadow:var(--shadow);border:3px solid rgba(90,138,78,.12);}
 .kside .how h4{color:var(--green-dark);margin-bottom:8px;}
 .kside .how ol{margin:0 0 0 18px;font-size:15px;line-height:1.7;}
+
+/* ===== Mushroom memory game ===== */
+.mg-wrap{max-width:720px;margin:0 auto;}
+.mg-frame{position:relative;background:linear-gradient(180deg,#ffffff,#fbf2ea);
+  border-radius:var(--radius);box-shadow:var(--shadow);border:3px solid rgba(181,118,74,.18);
+  padding:18px;min-height:300px;}
+.mg-hud{display:flex;gap:16px;justify-content:center;align-items:center;margin-bottom:14px;
+  font-weight:800;color:#7a4a28;font-size:16px;flex-wrap:wrap;}
+.mg-hud .chip{background:rgba(181,118,74,.12);border-radius:30px;padding:5px 14px;}
+.mg-board{display:grid;gap:9px;}
+.mg-card{aspect-ratio:3/4;perspective:600px;cursor:pointer;}
+.mg-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;
+  transition:transform .35s ease;}
+.mg-card.show .mg-inner,.mg-card.matched .mg-inner{transform:rotateY(180deg);}
+.mg-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.10);overflow:hidden;}
+.mg-back{background:#b5764a;color:#fff;font-size:26px;
+  background-image:radial-gradient(circle at 30% 30%,rgba(255,255,255,.18),transparent 60%);}
+.mg-front{transform:rotateY(180deg);font-size:12px;text-align:center;padding:3px;gap:3px;
+  border:3px solid rgba(0,0,0,.06);line-height:1.15;}
+.mg-front .gl{font-size:28px;line-height:1;}
+.mg-card.matched{opacity:.6;}
+.mg-card.matched .mg-front{box-shadow:inset 0 0 0 3px #5a8a4e;}
+.mg-card.bad .mg-front{animation:mgshake .3s;}
+@keyframes mgshake{0%,100%{transform:rotateY(180deg) translateX(0)}25%{transform:rotateY(180deg) translateX(-5px)}75%{transform:rotateY(180deg) translateX(5px)}}
+
+.mg-overlay{position:absolute;inset:0;background:rgba(122,74,40,.92);backdrop-filter:blur(3px);
+  border-radius:var(--radius);display:flex;align-items:center;justify-content:center;
+  text-align:center;color:#fff;padding:22px;transition:opacity .25s;z-index:8;}
+.mg-overlay.hidden{opacity:0;pointer-events:none;}
+.mg-overlay h3{color:#fff;font-size:clamp(22px,4vw,34px);margin-bottom:8px;}
+.mg-overlay p{max-width:420px;margin:0 auto 14px;opacity:.95;}
+.mg-overlay .btn{background:#f4c95d;color:#5a3a12;box-shadow:0 5px 0 #c79a36;}
+.mg-bonusC{background:#cfeafe;border-radius:14px;display:block;margin:6px auto 12px;width:100%;max-width:440px;}
+.mg-ovcard{max-width:480px;width:100%;}
