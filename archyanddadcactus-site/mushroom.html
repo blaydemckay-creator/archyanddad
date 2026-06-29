@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=16">
+<link rel="stylesheet" href="css/style.css?v=17">
 </head>
 <body class="mushroom">
 <header class="nav">
@@ -44,6 +44,24 @@
     </div>
   </div>
 </section>
+
+<section style="padding-top:30px">
+  <div class="wrap mg-wrap">
+    <h2 class="center" style="color:#7a4a28;margin-bottom:6px">🍄 Match the Mushrooms</h2>
+    <p class="center muted" style="margin:0 auto 20px;max-width:540px">Our little memory game: the cards flash, then flip face-down — find every pair. Each round adds two more cards, and every 3 boards cleared triggers a bonus round!</p>
+    <div class="mg-frame">
+      <div class="mg-hud">
+        <span class="chip">Round <b id="mgRound">1</b></span>
+        <span class="chip">⭐ <b id="mgScore">0</b></span>
+        <span class="chip">🏆 <b id="mgBest">0</b></span>
+        <span class="chip" id="mgLives">❤️❤️❤️❤️❤️</span>
+      </div>
+      <div id="mgBoard" class="mg-board"></div>
+      <div id="mgOverlay" class="mg-overlay"><div id="mgOv"></div></div>
+    </div>
+  </div>
+</section>
+
 
 <section>
   <div class="wrap" style="max-width:760px">
@@ -94,5 +112,6 @@
     <div class="small">© 2026 Archy &amp; Dad Mushroom Co. · archyanddad.com.au · ABN [your ABN here]</div>
   </div>
 </footer>
+<script src="js/mushroom-game.js?v=1"></script>
 </body>
 </html>
