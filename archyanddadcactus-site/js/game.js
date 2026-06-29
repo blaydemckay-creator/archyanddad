@@ -106,6 +106,8 @@
       freeShipping: !!(prev.freeShipping || freeShipping),
       ts: Date.now()
     };
+    // free shipping applies to the WHOLE order — share it across both games
+    if(merged.freeShipping){ try{ localStorage.setItem('ad_freeship','1'); }catch(e){} }
     try{ localStorage.setItem('sps_reward', JSON.stringify(merged)); }catch(e){}
   }
 

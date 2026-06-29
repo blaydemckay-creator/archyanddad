@@ -1,4 +1,4 @@
-/* Archy & Dad Mushroom Co. — Match the Mushrooms (progressive memory + bonus rounds) */
+/* Archy & Dad Mushroom Co. — Match the Mushrooms (progressive memory + kit rewards) */
 (function(){
   const board = document.getElementById('mgBoard');
   if(!board) return;
@@ -8,39 +8,117 @@
   const elLives = document.getElementById('mgLives');
   const overlay = document.getElementById('mgOverlay');
   const ov      = document.getElementById('mgOv');
+  const toastEl = document.getElementById('mgToast');
+
+  // ---- mushroom artwork (distinct picture per species) ----
+  const SHADOW='<ellipse cx="50" cy="93" rx="24" ry="5" fill="rgba(0,0,0,.10)"/>';
+  function spotsM(){ return '<ellipse cx="40" cy="42" rx="4.5" ry="3.5" fill="rgba(255,255,255,.85)"/><ellipse cx="59" cy="36" rx="5" ry="4" fill="rgba(255,255,255,.85)"/><ellipse cx="50" cy="50" rx="3.4" ry="2.8" fill="rgba(255,255,255,.8)"/>'; }
+  function dome(sp,flat){
+    const ry = flat?15:24;
+    return SHADOW
+      +'<rect x="43" y="50" width="14" height="40" rx="6" fill="'+sp.stem+'"/>'
+      +'<path d="M22,58 A28,'+ry+' 0 0 1 78,58 Z" fill="'+sp.cap+'"/>'
+      +(sp.spots?spotsM():'');
+  }
+  function fan(sp){
+    function shell(cx,cy,r,rot){ return '<g transform="rotate('+rot+' '+cx+' '+cy+')"><path d="M'+(cx-r)+','+cy+' Q'+cx+','+(cy-r*0.95)+' '+(cx+r)+','+cy+' Q'+cx+','+(cy+r*0.5)+' '+(cx-r)+','+cy+' Z" fill="'+sp.cap+'" stroke="rgba(0,0,0,.06)"/></g>'; }
+    return SHADOW+'<rect x="44" y="60" width="9" height="26" rx="4" fill="'+sp.stem+'"/>'+shell(44,58,20,-14)+shell(57,50,16,10)+shell(40,46,13,-4);
+  }
+  function pom(sp){
+    let s=SHADOW+'<rect x="45" y="64" width="10" height="24" rx="5" fill="'+sp.stem+'"/>';
+    s+='<circle cx="50" cy="50" r="25" fill="'+sp.cap+'"/>';
+    [[34,44],[40,32],[52,28],[64,34],[70,46],[66,60],[36,60],[50,66],[60,62],[28,52]].forEach(b=> s+='<circle cx="'+b[0]+'" cy="'+b[1]+'" r="6" fill="'+sp.cap+'"/>');
+    s+='<g stroke="rgba(0,0,0,.10)" stroke-width="1.3">';
+    for(let x=40;x<=60;x+=5) s+='<line x1="'+x+'" y1="48" x2="'+x+'" y2="66"/>';
+    return s+'</g>';
+  }
+  function enoki(sp){
+    let s=SHADOW; [40,46,50,54,60].forEach((x,i)=>{ const top=26+(i%2)*4; s+='<rect x="'+(x-2.2)+'" y="'+top+'" width="4.4" height="'+(66-top)+'" rx="2.2" fill="'+sp.stem+'"/><circle cx="'+x+'" cy="'+top+'" r="4.2" fill="'+sp.cap+'"/>'; });
+    return s;
+  }
+  function king(sp){
+    return SHADOW+'<path d="M38,88 Q35,54 42,42 Q50,36 58,42 Q65,54 62,88 Z" fill="'+sp.stem+'"/>'
+      +'<path d="M41,44 A11,8 0 0 1 59,44 Z" fill="'+sp.cap+'"/>';
+  }
+  function ruffle(sp){
+    let s=SHADOW+'<rect x="45" y="66" width="10" height="22" rx="4" fill="'+sp.stem+'"/>';
+    for(let i=0;i<3;i++){ const y=44+i*9; s+='<path d="M22,'+y+' Q36,'+(y-8)+' 50,'+y+' Q64,'+(y-8)+' 78,'+y+' Q80,'+(y+3)+' 74,'+(y+7)+' Q50,'+(y+11)+' 26,'+(y+7)+' Q20,'+(y+3)+' 22,'+y+' Z" fill="'+sp.cap+'" opacity="'+(0.72+i*0.09)+'"/>'; }
+    return s;
+  }
+  function reishi(sp){
+    return SHADOW+'<path d="M28,64 Q24,44 44,40 Q66,36 76,52 Q80,63 70,67 Q48,71 30,65 Z" fill="'+sp.cap+'"/>'
+      +'<path d="M40,50 Q55,46 68,55" stroke="rgba(255,255,255,.35)" stroke-width="3" fill="none"/>';
+  }
+  function art(sp){
+    let inner;
+    switch(sp.shape){
+      case 'fan': inner=fan(sp); break;
+      case 'pom': inner=pom(sp); break;
+      case 'enoki': inner=enoki(sp); break;
+      case 'king': inner=king(sp); break;
+      case 'ruffle': inner=ruffle(sp); break;
+      case 'reishi': inner=reishi(sp); break;
+      case 'flat': inner=dome(sp,true); break;
+      default: inner=dome(sp,false);
+    }
+    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>';
+  }
 
   const SPECIES = [
-    {n:'Oyster',      c:'#cfd8d3', t:'#33402e'},
-    {n:'Lion’s Mane', c:'#f3ead0', t:'#5a4a2a'},
-    {n:'Shiitake',    c:'#8a5a3b', t:'#fff'},
-    {n:'King Oyster', c:'#d8c39a', t:'#4a3a1f'},
-    {n:'Enoki',       c:'#f2f0e6', t:'#5a5a4a'},
-    {n:'Portobello',  c:'#6b4a35', t:'#fff'},
-    {n:'Chestnut',    c:'#b5653f', t:'#fff'},
-    {n:'Pink Oyster', c:'#f3b6c2', t:'#7a3b46'},
-    {n:'Golden',      c:'#f3cf52', t:'#5a4310'},
-    {n:'Maitake',     c:'#9a8a6b', t:'#fff'},
-    {n:'Wine Cap',    c:'#7c3b4a', t:'#fff'},
-    {n:'Reishi',      c:'#a33b2a', t:'#fff'}
+    {n:'Oyster',      shape:'fan',    cap:'#c4cec7', stem:'#e8e2d2', bg:'#eef2ef'},
+    {n:'Lion’s Mane', shape:'pom',    cap:'#f1e6c8', stem:'#e3d4b4', bg:'#fbf5e6'},
+    {n:'Shiitake',    shape:'dome',   cap:'#8a5a3b', stem:'#e7d6bf', bg:'#f3e7d6', spots:true},
+    {n:'King Oyster', shape:'king',   cap:'#b98d5c', stem:'#ece3d2', bg:'#f4eddd'},
+    {n:'Enoki',       shape:'enoki',  cap:'#efe6c7', stem:'#f3eee0', bg:'#f8f4ea'},
+    {n:'Portobello',  shape:'flat',   cap:'#6b4a35', stem:'#d8c6ad', bg:'#ece0cf'},
+    {n:'Chestnut',    shape:'dome',   cap:'#b5653f', stem:'#ecdcc6', bg:'#f5e3d4'},
+    {n:'Pink Oyster', shape:'fan',    cap:'#ee9fb1', stem:'#f6e6ea', bg:'#fce8ee'},
+    {n:'Golden',      shape:'fan',    cap:'#f0bf3c', stem:'#f4ebcf', bg:'#fbf2cf'},
+    {n:'Maitake',     shape:'ruffle', cap:'#9a8158', stem:'#cdbf9e', bg:'#efe8d8'},
+    {n:'Wine Cap',    shape:'dome',   cap:'#8a3a4b', stem:'#e6d2c2', bg:'#f3dde2'},
+    {n:'Reishi',      shape:'reishi', cap:'#a4382a', stem:'#caa07a', bg:'#f5dcd6'}
   ];
 
   let best = 0;
   try{ best = parseInt(localStorage.getItem('adm_best')||'0',10)||0; }catch(e){}
   if(elBest) elBest.textContent = best;
 
-  const S = { round:1, score:0, lives:5, deck:[], flipped:[], busy:false,
-              matched:0, boardsCleared:0, bonusIdx:0, active:false };
+  // ---- mushroom-kit rewards (separate from the cactus game) ----
+  function loadReward(){ try{ return Object.assign({discount:0,freeShipping:false}, JSON.parse(localStorage.getItem('adm_reward')||'{}')); }catch(e){ return {discount:0,freeShipping:false}; } }
+  function saveReward(r){ try{ localStorage.setItem('adm_reward', JSON.stringify(r)); }catch(e){} }
+  function bankDiscount(p){ const r=loadReward(); r.discount=Math.min(10,(r.discount||0)+p); saveReward(r); updateRewardBadge(); return r.discount; }
+  function shipUnlocked(){ try{ return localStorage.getItem('ad_freeship')==='1'; }catch(e){ return false; } }
+  function bankShipping(){ if(shipUnlocked()) return false; try{ localStorage.setItem('ad_freeship','1'); }catch(e){} updateRewardBadge(); return true; }
+  function updateRewardBadge(){
+    const el=document.getElementById('mgReward'); if(!el) return;
+    const r=loadReward(); const ship=shipUnlocked();
+    if(!r.discount && !ship){ el.style.display='none'; return; }
+    el.style.display='block';
+    el.innerHTML='🏷️ Unlocked: '
+      +(r.discount?('<strong>'+r.discount+'% off</strong> your mushroom kit'):'')
+      +(r.discount&&ship?' &nbsp;·&nbsp; ':'')
+      +(ship?'<strong>free shipping</strong> on your whole order':'')
+      +' — applied when kits launch.';
+  }
 
-  function pairsForRound(r){ return Math.min(8, 1 + r); }       // r1=2 pairs (4 cards)
+  function toast(msg){ if(!toastEl) return; toastEl.textContent=msg; toastEl.classList.add('show'); clearTimeout(toastEl._t); toastEl._t=setTimeout(()=>toastEl.classList.remove('show'),1700); }
+
+  const S = { round:1, score:0, lives:5, deck:[], flipped:[], busy:false,
+              matched:0, boardsCleared:0, active:false, bestAtStart:0 };
+
+  function pairsForRound(r){ return Math.min(8, 1 + r); }
   function revealMs(r){ return Math.max(1100, 2600 - (r-1)*180); }
   function colsFor(n){ return ({4:2,6:3,8:4,10:5,12:4,14:5,16:4})[n] || Math.ceil(Math.sqrt(n)); }
+  function rewardForRound(r){ if(r===4||r===15) return 5; return 0; }
 
   function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-  function buildDeck(nPairs){
-    const ids = shuffle(SPECIES.map((_,i)=>i)).slice(0,nPairs);
-    const cards = [];
-    ids.forEach(id=>{ cards.push({sid:id,matched:false}); cards.push({sid:id,matched:false}); });
+  function buildDeck(nPairs, rewardPts){
+    const cards=[];
+    let speciesNeeded=nPairs;
+    if(rewardPts){ speciesNeeded=nPairs-1; cards.push({reward:rewardPts,sid:'RWD'}); cards.push({reward:rewardPts,sid:'RWD'}); }
+    const ids = shuffle(SPECIES.map((_,i)=>i)).slice(0,speciesNeeded);
+    ids.forEach(id=>{ cards.push({sid:id}); cards.push({sid:id}); });
     return shuffle(cards);
   }
 
@@ -53,19 +131,19 @@
 
   function renderBoard(){
     const n = S.deck.length;
-    board.style.gridTemplateColumns = 'repeat('+colsFor(n)+',1fr)';
+    board.style.gridTemplateColumns = 'repeat('+colsFor(n)+', minmax(58px, 104px))';
     board.innerHTML = '';
     S.deck.forEach((card,i)=>{
-      const sp = SPECIES[card.sid];
       const el = document.createElement('div');
       el.className = 'mg-card';
-      el.innerHTML =
-        '<div class="mg-inner">'+
-          '<div class="mg-face mg-back">🍄</div>'+
-          '<div class="mg-face mg-front" style="background:'+sp.c+';color:'+sp.t+'">'+
-            '<span class="gl">🍄</span><span>'+sp.n+'</span>'+
-          '</div>'+
-        '</div>';
+      let front;
+      if(card.reward){
+        front = '<div class="mg-face mg-front reward"><span class="rtag">🏷️</span><span class="nm">'+card.reward+'% OFF</span></div>';
+      } else {
+        const sp = SPECIES[card.sid];
+        front = '<div class="mg-face mg-front" style="background:'+sp.bg+'"><div class="pic">'+art(sp)+'</div><span class="nm">'+sp.n+'</span></div>';
+      }
+      el.innerHTML = '<div class="mg-inner"><div class="mg-face mg-back">🍄</div>'+front+'</div>';
       el.addEventListener('click', ()=>onCard(i));
       card.el = el;
       board.appendChild(el);
@@ -73,15 +151,11 @@
   }
 
   function newBoard(){
-    S.deck = buildDeck(pairsForRound(S.round));
+    S.deck = buildDeck(pairsForRound(S.round), rewardForRound(S.round));
     S.flipped = []; S.matched = 0; S.busy = true;
-    renderBoard();
-    setHud();
-    S.deck.forEach(c=>c.el.classList.add('show'));     // reveal all
-    setTimeout(()=>{
-      S.deck.forEach(c=>{ if(!c.matched) c.el.classList.remove('show'); });
-      S.busy = false;
-    }, revealMs(S.round));
+    renderBoard(); setHud();
+    S.deck.forEach(c=>c.el.classList.add('show'));
+    setTimeout(()=>{ S.deck.forEach(c=>{ if(!c.matched) c.el.classList.remove('show'); }); S.busy=false; }, revealMs(S.round));
   }
 
   function onCard(i){
@@ -93,13 +167,16 @@
     if(S.flipped.length===2){
       S.busy = true;
       const [a,b] = S.flipped;
-      if(S.deck[a].sid===S.deck[b].sid){
+      const same = (S.deck[a].sid===S.deck[b].sid);
+      if(same){
         setTimeout(()=>{
           S.deck[a].matched = S.deck[b].matched = true;
           S.deck[a].el.classList.add('matched'); S.deck[b].el.classList.add('matched');
-          S.matched += 1; S.score += 50; S.flipped = []; S.busy = false; setHud();
+          S.matched += 1; S.score += 50;
+          if(S.deck[a].reward){ const t=bankDiscount(S.deck[a].reward); toast('🏷️ '+S.deck[a].reward+'% off your mushroom kit unlocked!'); }
+          S.flipped = []; S.busy = false; setHud();
           if(S.matched === S.deck.length/2) boardClear();
-        }, 380);
+        }, 360);
       } else {
         S.lives -= 1; setHud();
         S.deck[a].el.classList.add('bad'); S.deck[b].el.classList.add('bad');
@@ -117,151 +194,27 @@
     S.score += S.round*40;
     S.lives = Math.min(9, S.lives+2);
     setHud();
-    if(S.boardsCleared % 3 === 0){
-      setTimeout(()=>startBonus(), 500);
-    } else {
-      setTimeout(()=>{ S.round += 1; newBoard(); }, 700);
-    }
+    setTimeout(()=>{ S.round += 1; newBoard(); }, 700);
   }
 
-  function nextAfterBonus(){ S.round += 1; newBoard(); }
-
-  // ---------- overlays ----------
   function showOverlay(html){ ov.innerHTML = html; overlay.classList.remove('hidden'); }
   function hideOverlay(){ overlay.classList.add('hidden'); }
 
   function startGame(){
-    S.round=1; S.score=0; S.lives=5; S.boardsCleared=0; S.bonusIdx=0; S.active=true;
+    S.round=1; S.score=0; S.lives=5; S.boardsCleared=0; S.active=true; S.bestAtStart=best;
     hideOverlay(); newBoard();
   }
 
   function gameOver(){
-    S.active=false;
-    setHud();
+    S.active=false; setHud();
+    let ship='';
+    if(S.score>S.bestAtStart && S.score>0){ if(bankShipping()) ship='<br>🚚 New high score — <strong>free shipping on your whole order</strong> unlocked!'; }
     showOverlay('<div class="mg-ovcard"><h3>Out of guesses! 🍄</h3>'+
-      '<p>You reached <strong>round '+S.round+'</strong> and scored <strong>'+S.score+'</strong>.<br>Best: '+best+'</p>'+
+      '<p>You reached <strong>round '+S.round+'</strong> and scored <strong>'+S.score+'</strong>.<br>Best: '+best+ship+'</p>'+
       '<button class="btn" id="mgPlay">Play again</button></div>');
     const b=document.getElementById('mgPlay'); if(b) b.addEventListener('click', startGame);
   }
 
-  // ---------- BONUS ROUNDS (alternating) ----------
-  function startBonus(){
-    const kind = (S.bonusIdx++ % 2); // 0 = Harvest Timing, 1 = Catch the Spores
-    if(kind===0) bonusHarvest(); else bonusSpores();
-  }
-
-  function bonusIntro(title, desc, go){
-    showOverlay('<div class="mg-ovcard"><h3>⭐ Bonus: '+title+'</h3><p>'+desc+'</p>'+
-      '<button class="btn" id="mgGo">Start bonus</button></div>');
-    document.getElementById('mgGo').addEventListener('click', go);
-  }
-
-  function bonusOutro(points){
-    S.score += points; setHud();
-    showOverlay('<div class="mg-ovcard"><h3>Bonus done! 🎉</h3>'+
-      '<p>+'+points+' points</p><button class="btn" id="mgCont">Next round</button></div>');
-    document.getElementById('mgCont').addEventListener('click', ()=>{ hideOverlay(); nextAfterBonus(); });
-  }
-
-  // ---- Harvest Timing ----
-  function bonusHarvest(){
-    bonusIntro('Harvest Timing',
-      'A mushroom grows — press <strong>SPACE</strong> or tap when it hits the ripe ring. 3 mushrooms!',
-      runHarvest);
-  }
-  function runHarvest(){
-    showOverlay('<div class="mg-ovcard"><h3>Harvest! 🍄</h3>'+
-      '<canvas id="mgBonusC" class="mg-bonusC" width="440" height="240"></canvas>'+
-      '<p id="mgHmsg" style="min-height:24px">Get ready…</p></div>');
-    const cv=document.getElementById('mgBonusC'), ctx=cv.getContext('2d');
-    const W=cv.width,H=cv.height; const msg=document.getElementById('mgHmsg');
-    let scale=0.3, growing=true, idx=0, total=0, harvested=false, done=false;
-    const RIPE_LO=0.92, RIPE_HI=1.12, MAXS=1.45, rate=0.42;
-    let last=performance.now();
-    function harvest(){
-      if(done||harvested||!growing) return;
-      harvested=true;
-      let pts=0, label='Too '+(scale<RIPE_LO?'early':'late')+'!';
-      if(scale>=RIPE_LO && scale<=RIPE_HI){
-        const perfect = Math.abs(scale-1.0)<0.06;
-        pts = perfect?100:60; label = perfect?'PERFECT! +'+pts:'Ripe! +'+pts;
-      }
-      total+=pts; msg.textContent=label;
-      setTimeout(nextMush, 700);
-    }
-    function nextMush(){
-      idx++;
-      if(idx>=3){ cleanup(); bonusOutro(total); return; }
-      scale=0.3; growing=true; harvested=false; msg.textContent='Mushroom '+(idx+1)+' of 3';
-    }
-    function key(e){ if(e.code==='Space'){ e.preventDefault(); harvest(); } }
-    function tap(){ harvest(); }
-    window.addEventListener('keydown', key);
-    cv.addEventListener('pointerdown', tap);
-    function cleanup(){ done=true; window.removeEventListener('keydown',key); cv.removeEventListener('pointerdown',tap); }
-    msg.textContent='Mushroom 1 of 3';
-    (function loop(now){
-      if(done) return;
-      const dt=Math.min(0.05,(now-last)/1000); last=now;
-      if(growing && !harvested){ scale+=dt*rate; if(scale>=MAXS){ growing=false; harvested=true; msg.textContent='Missed it! 😟'; total+=0; setTimeout(nextMush,700);} }
-      ctx.clearRect(0,0,W,H);
-      // ripe ring (target size)
-      const cx=W/2, baseY=H-30;
-      ctx.strokeStyle='rgba(90,138,78,.8)'; ctx.lineWidth=3; ctx.setLineDash([6,5]);
-      const ringR=58; ctx.beginPath(); ctx.ellipse(cx,baseY-58,ringR,ringR*0.9,0,0,7); ctx.stroke(); ctx.setLineDash([]);
-      // mushroom
-      const s=scale;
-      ctx.fillStyle='#caa07a'; ctx.fillRect(cx-9*s, baseY-46*s, 18*s, 46*s); // stem
-      ctx.fillStyle='#8a5a3b'; ctx.beginPath(); ctx.ellipse(cx, baseY-46*s, 40*s, 26*s, 0, Math.PI,0); ctx.fill(); // cap
-      ctx.fillStyle='rgba(255,255,255,.85)';
-      ctx.beginPath(); ctx.arc(cx-14*s,baseY-50*s,4*s,0,7); ctx.arc(cx+12*s,baseY-56*s,5*s,0,7); ctx.fill();
-      requestAnimationFrame(loop);
-    })(last);
-  }
-
-  // ---- Catch the Spores ----
-  function bonusSpores(){
-    bonusIntro('Catch the Spores',
-      'Move the jar with ← → (or drag) to catch good spores 🟡 and dodge mould 🟣. 12 seconds!',
-      runSpores);
-  }
-  function runSpores(){
-    showOverlay('<div class="mg-ovcard"><h3>Catch the Spores! 🫙</h3>'+
-      '<canvas id="mgBonusC" class="mg-bonusC" width="440" height="260"></canvas>'+
-      '<p id="mgSmsg" style="min-height:24px">Caught: 0</p></div>');
-    const cv=document.getElementById('mgBonusC'), ctx=cv.getContext('2d');
-    const W=cv.width,H=cv.height; const msg=document.getElementById('mgSmsg');
-    let jarX=W/2, caught=0, pts=0, t=0, done=false, last=performance.now();
-    const drops=[]; let spawn=0; let left=false,right=false;
-    function key(e,v){ if(e.code==='ArrowLeft'){left=v;e.preventDefault();} if(e.code==='ArrowRight'){right=v;e.preventDefault();} }
-    const kd=e=>key(e,true), ku=e=>key(e,false);
-    function move(e){ const r=cv.getBoundingClientRect(); jarX=Math.max(24,Math.min(W-24,(e.clientX-r.left)*(W/r.width))); }
-    window.addEventListener('keydown',kd); window.addEventListener('keyup',ku); cv.addEventListener('pointermove',move);
-    function cleanup(){ done=true; window.removeEventListener('keydown',kd); window.removeEventListener('keyup',ku); cv.removeEventListener('pointermove',move); }
-    (function loop(now){
-      if(done) return;
-      const dt=Math.min(0.05,(now-last)/1000); last=now; t+=dt; spawn-=dt;
-      if(left) jarX-=260*dt; if(right) jarX+=260*dt; jarX=Math.max(24,Math.min(W-24,jarX));
-      if(spawn<=0){ spawn=0.55+Math.random()*0.4; drops.push({x:30+Math.random()*(W-60),y:-12,bad:Math.random()<0.28,v:90+Math.random()*70}); }
-      for(let i=drops.length-1;i>=0;i--){ const d=drops[i]; d.y+=d.v*dt;
-        if(d.y>H-34 && Math.abs(d.x-jarX)<30){ if(d.bad){pts=Math.max(0,pts-15);} else {caught++;pts+=15;} drops.splice(i,1); msg.textContent='Caught: '+caught; continue; }
-        if(d.y>H+14) drops.splice(i,1);
-      }
-      ctx.clearRect(0,0,W,H);
-      ctx.fillStyle='#7fb86a'; ctx.fillRect(0,H-10,W,10);
-      drops.forEach(d=>{ ctx.font='20px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.bad?'🟣':'🟡', d.x, d.y); });
-      // jar
-      ctx.fillStyle='#b5764a'; ctx.strokeStyle='#7a4a28'; ctx.lineWidth=3;
-      ctx.beginPath(); ctx.moveTo(jarX-26,H-34); ctx.lineTo(jarX+26,H-34); ctx.lineTo(jarX+20,H-10); ctx.lineTo(jarX-20,H-10); ctx.closePath(); ctx.fill(); ctx.stroke();
-      // timer bar
-      ctx.fillStyle='rgba(122,74,40,.25)'; ctx.fillRect(0,0,W,6);
-      ctx.fillStyle='#7a4a28'; ctx.fillRect(0,0,W*(1-t/12),6);
-      if(t>=12){ cleanup(); bonusOutro(pts); return; }
-      requestAnimationFrame(loop);
-    })(last);
-  }
-
-  // ---------- input to start ----------
   function startInput(e){
     if(S.active) return;
     if(e.type==='keydown' && e.code!=='Space') return;
@@ -269,11 +222,11 @@
     startGame();
   }
   window.addEventListener('keydown', startInput);
-  if(overlay) overlay.addEventListener('pointerdown', (e)=>{ if(!S.active && e.target.id!=='mgPlay' && e.target.id!=='mgGo' && e.target.id!=='mgCont') startGame(); });
+  if(overlay) overlay.addEventListener('pointerdown', (e)=>{ if(!S.active && e.target.id!=='mgPlay') startGame(); });
 
-  // initial start overlay
+  updateRewardBadge();
   showOverlay('<div class="mg-ovcard"><h3>Match the Mushrooms 🍄</h3>'+
-    '<p>Cards flash, then flip. Find every pair! Each round adds two more cards — and every 3 boards triggers a bonus round.</p>'+
+    '<p>The cards flash, then flip face-down — find every matching pair! Each round adds two more cards. Match the 🏷️ reward card in rounds 4 &amp; 15 for discounts, and set a high score for free shipping — all toward your mushroom kit.</p>'+
     '<button class="btn" id="mgStart">Start growing</button></div>');
   (function(){ const b=document.getElementById('mgStart'); if(b) b.addEventListener('click', startGame); })();
 })();
