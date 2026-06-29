@@ -11,6 +11,8 @@
   const ARCHY = { name:'Archy', x:120, body:'#e0473c', cap:'#2c2c2c', dir:1 };
   const DAD   = { name:'Dad',   x:W-120, body:'#f08a24', cap:'#e07b16', dir:-1 };
   const WEAPONS=['normal','bounce','cluster','nuke','mg'];
+  const SPECIALS=['bounce','cluster','nuke','mg'];
+  const PSPEED=3.6, PTOL=0.03;
 
   let terrain = [];
   const S = {
@@ -53,7 +55,7 @@
   function startMatch(){
     S.scoreA=0; S.scoreD=0; S.turn='archy'; S.winner='';
     genTerrain(); placeTanks(); newWind();
-    S.angle=45; S.power=55; S.shots=[]; S.flashes=[]; S.turnHit=false; S.selfHit=false; S.weapon='normal'; S.nuke=null; S.nukeResult=null;
+    S.angle=45; S.power=55; S.shots=[]; S.flashes=[]; S.turnHit=false; S.selfHit=false; S.weapon='normal'; S.nuke=null; S.nukeResult=null; S.candidate='bounce'; S.pendT=0; S.selMsg=''; S.selMsgT=0; S.used={archy:{},dad:{}};
     S.mode='aim';
   }
 
@@ -67,18 +69,28 @@
     if(S.mode!=='aim') return;
     const t=activeTank(); const b=barrelTip(t); const v=S.power*9;
     S.turnHit=false; S.selfHit=false;
-    if(S.weapon==='mg'){ S.shots=[]; S.mgTime=0; S.mgCD=0; S.mode='mg'; return; }
+    if(S.weapon==='mg'){ S.used[S.turn]['mg']=true; S.shots=[]; S.mgTime=0; S.mgCD=0; S.mode='mg'; return; }
     const base={ x:b.x, y:b.y, vx:b.ux*v, vy:b.uy*v };
     if(S.weapon==='bounce') S.shots=[Object.assign({},base,{kind:'bounce',bounces:0,armed:false})];
     else if(S.weapon==='cluster') S.shots=[Object.assign({},base,{kind:'cluster',split:false,armed:false})];
     else if(S.weapon==='nuke') S.shots=[Object.assign({},base,{kind:'nuke',armed:false})];
     else S.shots=[Object.assign({},base,{kind:'normal',armed:false})];
+    if(S.weapon!=='normal') S.used[S.turn][S.weapon]=true;
     S.mode='fire';
   }
 
   function explode(x,y,max,hit){ S.flashes.push({x:x,y:y,r:4,max:max}); carveCrater(x,y,max); if(hit) S.turnHit=true; }
 
-  function toggleWeapon(){ if(S.mode!=='aim') return; const i=WEAPONS.indexOf(S.weapon); S.weapon=WEAPONS[(i+1)%WEAPONS.length]; }
+  function availSpecials(p){ return SPECIALS.filter(w=>!S.used[p][w]); }
+  function enterSelect(){ if(S.mode!=='aim') return; const a=availSpecials(S.turn); if(a.length===0){ S.selMsg='All specials used — Normal only'; S.selMsgT=1.8; return; } S.mode='select'; S.candidate=a[0]; S.pendT=0; }
+  function cycleCandidate(){ const a=availSpecials(S.turn); if(a.length===0){ S.mode='aim'; return; } const i=a.indexOf(S.candidate); S.candidate=a[(i+1)%a.length]; }
+  function pendPos(){ return 0.5+0.5*Math.cos(S.pendT*PSPEED); }
+  function lockPendulum(){
+    const pos=pendPos();
+    if(Math.abs(pos-0.5)<PTOL){ S.weapon=S.candidate; S.selMsg='✔ Armed: '+weaponLabel(S.candidate); }
+    else { S.weapon='normal'; S.selMsg='✘ Missed — Normal ammo only'; }
+    S.selMsgT=1.8; S.mode='aim';
+  }
   function weaponLabel(w){ return w==='bounce'?'💣 Bouncy Bomb':(w==='cluster'?'✸ Cluster Bomb':(w==='nuke'?'☢️ Nuke (hit=win, miss=both lose!)':(w==='mg'?'🔫 Machine Gun (4s burst)':'Normal'))); }
 
   function resolveScores(){
@@ -87,7 +99,7 @@
     if(S.selfHit){ if(shooter==='archy') S.scoreD++; else S.scoreA++; }
     if(S.scoreA>=WIN_TO || S.scoreD>=WIN_TO){ S.winner=S.scoreA>=S.scoreD?'Archy':'Dad'; S.mode='over'; return; }
     S.turn = shooter==='archy'?'dad':'archy';
-    newWind(); S.angle=45; S.power=55; S.shots=[]; S.mode='aim';
+    newWind(); S.angle=45; S.power=55; S.shots=[]; S.weapon='normal'; S.selMsg=''; S.selMsgT=0; S.mode='aim';
   }
   function endShot(hit){
     if(hit){
@@ -104,10 +116,10 @@
   // ---------- input ----------
   function press(code,down){
     if(code==='Space'){
-      if(down){ if(S.mode==='start'||S.mode==='over') startMatch(); else if(S.mode==='aim') fire(); }
+      if(down){ if(S.mode==='start'||S.mode==='over') startMatch(); else if(S.mode==='aim') fire(); else if(S.mode==='select') lockPendulum(); }
       return;
     }
-    if(code==='KeyB'){ if(down) toggleWeapon(); return; }
+    if(code==='KeyB'){ if(down){ if(S.mode==='aim') enterSelect(); else if(S.mode==='select') cycleCandidate(); } return; }
     if(code==='ArrowLeft'||code==='KeyA') S.aDir=down?-1:(S.aDir<0?0:S.aDir);
     else if(code==='ArrowRight'||code==='KeyD') S.aDir=down?1:(S.aDir>0?0:S.aDir);
     else if(code==='ArrowUp'||code==='KeyW') S.pDir=down?1:(S.pDir>0?0:S.pDir);
@@ -119,8 +131,8 @@
   window.DVA = {
     aim:d=>{ S.aDir=d; }, aimStop:()=>{ S.aDir=0; },
     pow:d=>{ S.pDir=d; }, powStop:()=>{ S.pDir=0; },
-    fire:()=>{ if(S.mode==='start'||S.mode==='over') startMatch(); else fire(); },
-    weapon:()=>{ toggleWeapon(); return S.weapon; }
+    fire:()=>{ if(S.mode==='start'||S.mode==='over') startMatch(); else if(S.mode==='select') lockPendulum(); else fire(); },
+    pick:()=>{ if(S.mode==='aim') enterSelect(); else if(S.mode==='select') cycleCandidate(); }
   };
 
   // ---------- update ----------
@@ -178,6 +190,9 @@
     if(S.mode==='aim'){
       S.angle=Math.max(15,Math.min(85,S.angle+S.aDir*55*dt));
       S.power=Math.max(10,Math.min(100,S.power+S.pDir*42*dt));
+      if(S.selMsgT>0) S.selMsgT-=dt;
+    } else if(S.mode==='select'){
+      S.pendT+=dt;
     } else if(S.mode==='mg'){
       S.angle=Math.max(15,Math.min(85,S.angle+S.aDir*55*dt));
       S.power=Math.max(10,Math.min(100,S.power+S.pDir*42*dt));
@@ -243,6 +258,7 @@
       ctx.fillStyle=S.weapon==='normal'?'#33402e':(S.weapon==='bounce'?'#2f6fb0':(S.weapon==='nuke'?'#c62828':'#5a3a8a'));
       ctx.fillText('Shot: '+weaponLabel(S.weapon), W/2, 60);
       if(S.mode==='mg'){ ctx.fillStyle='#b5683f'; ctx.fillText('🔫 Firing! '+Math.max(0,Math.ceil(4-S.mgTime))+'s — sweep the turret!', W/2, 78); }
+      if(S.mode==='aim' && S.selMsgT>0){ ctx.fillStyle=S.weapon==='normal'?'#b5683f':'#3a7d3a'; ctx.fillText(S.selMsg, W/2, 78); }
     }
     if(S.mode==='aim'){
       const t=activeTank();
@@ -258,6 +274,25 @@
     ctx.font='600 18px Quicksand, sans-serif';
     lines.forEach((l,i)=> ctx.fillText(l, W/2, H/2-16+i*26));
   }
+  function drawSelect(){
+    ctx.fillStyle='rgba(40,55,46,.85)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center'; ctx.fillStyle='#fff';
+    ctx.font='800 30px Quicksand,sans-serif'; ctx.fillText('Arm: '+weaponLabel(S.candidate), W/2, H/2-92);
+    ctx.font='600 16px Quicksand,sans-serif'; ctx.fillText('Stop the pendulum in the GREEN centre to equip it!', W/2, H/2-62);
+    const tw=W*0.6, tx=(W-tw)/2, ty=H/2-12, th=26;
+    ctx.fillStyle='rgba(255,255,255,.92)'; roundRect(tx,ty,tw,th,13); ctx.fill();
+    const cw=tw*PTOL*2; ctx.fillStyle='rgba(90,138,78,.95)'; ctx.fillRect(W/2-cw/2,ty,cw,th);
+    const mx=tx+pendPos()*tw;
+    ctx.fillStyle='#e0473c'; ctx.beginPath(); ctx.moveTo(mx,ty-6); ctx.lineTo(mx-8,ty-18); ctx.lineTo(mx+8,ty-18); ctx.closePath(); ctx.fill();
+    ctx.fillRect(mx-2,ty,4,th);
+    ctx.fillStyle='#fff'; ctx.font='700 15px Quicksand,sans-serif';
+    ctx.fillText('SPACE / FIRE = lock   ·   B / Weapon = change ammo', W/2, ty+th+34);
+    ctx.font='600 14px Quicksand,sans-serif'; ctx.fillStyle='rgba(255,255,255,.85)';
+    ctx.fillText('Each special can be used ONCE per match. Normal ammo is unlimited.', W/2, ty+th+58);
+    const a=availSpecials(S.turn); const icons={bounce:'💣',cluster:'✸',nuke:'☢️',mg:'🔫'};
+    ctx.font='700 15px Quicksand,sans-serif'; ctx.fillStyle='#fff';
+    ctx.fillText('Your specials left: '+SPECIALS.map(w=> a.indexOf(w)>=0?icons[w]:'—').join('  '), W/2, ty+th+82);
+  }
   function draw(){
     sky(); drawTerrain();
     drawTank(ARCHY, S.turn==='archy' && (S.mode==='aim'||S.mode==='mg'));
@@ -266,7 +301,8 @@
     for(const f of S.flashes){ ctx.fillStyle='rgba(244,140,40,.85)'; ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,7); ctx.fill();
       ctx.fillStyle='rgba(255,220,120,.9)'; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*0.5,0,7); ctx.fill(); }
     hud();
-    if(S.mode==='start') overlayPanel('DAD vs ARCHY', ['Take turns — first to '+WIN_TO+' hits wins!','← → aim · ↑ ↓ power · SPACE fire · B = change weapon','Weapons: Normal · 💣 Bouncy · ✸ Cluster · ☢️ Nuke · 🔫 Machine Gun','🔫 MG fires for 4s — sweep the turret! ☢️ Nuke: hit = instant win, miss = both lose','⚠️ Watch out — your own bombs can blow YOU up (the point goes to your rival)!','Press SPACE or tap to start']);
+    if(S.mode==='select') drawSelect();
+    if(S.mode==='start') overlayPanel('DAD vs ARCHY', ['Take turns — first to '+WIN_TO+' hits wins!','← → aim · ↑ ↓ power · SPACE fire · B = pick special ammo','Specials must be ARMED by stopping a pendulum dead-centre (tricky!) — and each one works only ONCE per match','☢️ Nuke: hit = instant win, miss = both lose · ⚠️ your own bombs can hit you too','Press SPACE or tap to start']);
     if(S.mode==='over'){
       if(S.nukeResult==='win') overlayPanel('☢️ DIRECT NUKE!', [S.winner+' wins instantly!','Press SPACE or tap to play again']);
       else if(S.nukeResult==='self') overlayPanel('☢️ SELF-NUKE! 😬', [S.winner+' wins — the other one nuked themselves!','Press SPACE or tap to play again']);
