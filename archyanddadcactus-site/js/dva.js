@@ -35,6 +35,14 @@
   }
   function groundY(x){ x=Math.max(0,Math.min(W-1,Math.round(x))); return terrain[x]; }
   function placeTanks(){ ARCHY.y=groundY(ARCHY.x); DAD.y=groundY(DAD.x); }
+  function carveCrater(cx,cy,r){
+    const x0=Math.max(0,Math.floor(cx-r)), x1=Math.min(W-1,Math.ceil(cx+r));
+    for(let x=x0;x<=x1;x++){
+      const dx=x-cx, dd=r*r-dx*dx; if(dd<=0) continue;
+      const bottom=cy+Math.sqrt(dd);
+      if(bottom>terrain[x]) terrain[x]=Math.min(H-4, bottom);
+    }
+  }
   function newWind(){ S.wind = Math.round((Math.random()*2-1)*90); }
 
   function activeTank(){ return S.turn==='archy'?ARCHY:DAD; }
@@ -114,7 +122,7 @@
       else if(p.x<0||p.x>W||p.y>groundY(p.x)){ S.expl={x:p.x,y:Math.min(p.y,groundY(p.x)),r:4,hit:false}; S.mode='expl'; }
     } else if(S.mode==='expl' && S.expl){
       S.expl.r += 130*dt;
-      if(S.expl.r>34){ const hit=S.expl.hit; S.expl=null; endShot(hit); }
+      if(S.expl.r>34){ const hit=S.expl.hit; carveCrater(S.expl.x, S.expl.y, 42); placeTanks(); S.expl=null; endShot(hit); }
     }
     draw();
     requestAnimationFrame(step);
@@ -192,7 +200,6 @@
     sky(); drawTerrain();
     drawTank(ARCHY, S.turn==='archy' && (S.mode==='aim'));
     drawTank(DAD,   S.turn==='dad'   && (S.mode==='aim'));
-    if(S.mode==='aim') drawAimPreview();
     if(S.proj){ ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(S.proj.x,S.proj.y,5,0,7); ctx.fill(); }
     if(S.expl){ ctx.fillStyle='rgba(244,140,40,.85)'; ctx.beginPath(); ctx.arc(S.expl.x,S.expl.y,S.expl.r,0,7); ctx.fill();
       ctx.fillStyle='rgba(255,220,120,.9)'; ctx.beginPath(); ctx.arc(S.expl.x,S.expl.y,S.expl.r*0.5,0,7); ctx.fill(); }
