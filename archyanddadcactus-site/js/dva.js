@@ -17,7 +17,7 @@
     angle:45, power:55, wind:0,
     scoreA:0, scoreD:0,
     proj:null, expl:null, msg:'', winner:'',
-    aDir:0, pDir:0
+    aDir:0, pDir:0, weapon:'normal'
   };
 
   function genTerrain(){
@@ -52,7 +52,7 @@
     S.scoreA=0; S.scoreD=0; S.turn='archy'; S.winner='';
     genTerrain(); placeTanks(); newWind();
     S.angle=45; S.power=55; S.proj=null; S.expl=null;
-    S.mode='aim'; S.msg='Archy starts!';
+    S.weapon='normal'; S.mode='aim'; S.msg='Archy starts!';
   }
 
   function barrelTip(t){
@@ -66,9 +66,11 @@
     if(S.mode!=='aim') return;
     const t=activeTank(); const b=barrelTip(t);
     const v = S.power*9;
-    S.proj = { x:b.x, y:b.y, vx:b.vx*v, vy:b.vy*v };
+    S.proj = { x:b.x, y:b.y, vx:b.vx*v, vy:b.vy*v, bounce:(S.weapon==='bounce'), bounces:0 };
     S.mode='fire';
   }
+  function boom(x,y,max,hit){ S.expl={x:x,y:y,r:4,max:max,hit:hit}; S.proj=null; S.mode='expl'; }
+  function toggleWeapon(){ if(S.mode==='aim') S.weapon=(S.weapon==='normal'?'bounce':'normal'); }
 
   function endShot(hit){
     if(hit){
@@ -89,6 +91,7 @@
       if(down){ if(S.mode==='start'||S.mode==='over') startMatch(); else if(S.mode==='aim') fire(); }
       return;
     }
+    if(code==='KeyB'){ if(down) toggleWeapon(); return; }
     const v=down?1:0;
     if(code==='ArrowLeft'||code==='KeyA') S.aDir=down?-1:(S.aDir<0?0:S.aDir);
     else if(code==='ArrowRight'||code==='KeyD') S.aDir=down?1:(S.aDir>0?0:S.aDir);
@@ -103,7 +106,8 @@
   window.DVA = {
     aim:d=>{ S.aDir=d; }, aimStop:()=>{ S.aDir=0; },
     pow:d=>{ S.pDir=d; }, powStop:()=>{ S.pDir=0; },
-    fire:()=>{ if(S.mode==='start'||S.mode==='over') startMatch(); else fire(); }
+    fire:()=>{ if(S.mode==='start'||S.mode==='over') startMatch(); else fire(); },
+    weapon:()=>{ toggleWeapon(); return S.weapon; }
   };
 
   // ---------- update ----------
@@ -118,11 +122,28 @@
       p.vy += 560*dt; p.vx += S.wind*dt;
       p.x += p.vx*dt; p.y += p.vy*dt;
       const en=enemyTank();
-      if(Math.hypot(p.x-en.x, p.y-(en.y-14))<24){ S.expl={x:p.x,y:p.y,r:4,hit:true}; S.mode='expl'; }
-      else if(p.x<0||p.x>W||p.y>groundY(p.x)){ S.expl={x:p.x,y:Math.min(p.y,groundY(p.x)),r:4,hit:false}; S.mode='expl'; }
+      const hitR = p.bounce ? (12 + p.bounces*5) : 24;
+      if(Math.hypot(p.x-en.x, p.y-(en.y-14)) < hitR){
+        const max = p.bounce ? Math.min(100, 22 + p.bounces*9) : 42;
+        boom(p.x, p.y, max, true);
+      } else if(p.x<-20 || p.x>W+20){
+        endShot(false);
+      } else if(p.y >= groundY(p.x)){
+        if(!p.bounce){ boom(p.x, Math.min(p.y,groundY(p.x)), 42, false); }
+        else {
+          p.bounces++;
+          const xi=Math.round(p.x);
+          let nx=(groundY(Math.min(W-1,xi+3))-groundY(Math.max(0,xi-3)))/6, ny=-1;
+          const nl=Math.hypot(nx,ny)||1; nx/=nl; ny/=nl;
+          const dot=p.vx*nx+p.vy*ny;
+          p.vx=(p.vx-2*dot*nx)*0.68; p.vy=(p.vy-2*dot*ny)*0.68;
+          p.y=groundY(p.x)-4;
+          if(Math.hypot(p.vx,p.vy)<60 || p.bounces>16){ boom(p.x, groundY(p.x), 16, false); }
+        }
+      }
     } else if(S.mode==='expl' && S.expl){
-      S.expl.r += 130*dt;
-      if(S.expl.r>34){ const hit=S.expl.hit; carveCrater(S.expl.x, S.expl.y, 42); placeTanks(); S.expl=null; endShot(hit); }
+      S.expl.r += 150*dt;
+      if(S.expl.r>=S.expl.max){ const hit=S.expl.hit; carveCrater(S.expl.x, S.expl.y, S.expl.max); placeTanks(); S.expl=null; endShot(hit); }
     }
     draw();
     requestAnimationFrame(step);
@@ -176,6 +197,8 @@
       // wind
       const dir=S.wind>0?'→':(S.wind<0?'←':'·'); 
       ctx.fillText('Wind '+dir+' '+Math.abs(S.wind), W/2, 42);
+      ctx.fillStyle=S.weapon==='bounce'?'#2f6fb0':'#33402e';
+      ctx.fillText('Shot: '+(S.weapon==='bounce'?'💣 Bouncy Bomb':'Normal'), W/2, 60);
     }
     if(S.mode==='aim'){
       // angle + power readout near active tank
@@ -200,11 +223,15 @@
     sky(); drawTerrain();
     drawTank(ARCHY, S.turn==='archy' && (S.mode==='aim'));
     drawTank(DAD,   S.turn==='dad'   && (S.mode==='aim'));
-    if(S.proj){ ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(S.proj.x,S.proj.y,5,0,7); ctx.fill(); }
+    if(S.proj){
+      if(S.proj.bounce){ ctx.fillStyle='#3a7bd5'; ctx.beginPath(); ctx.arc(S.proj.x,S.proj.y,6,0,7); ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+        ctx.fillStyle='#2f6fb0'; ctx.font='800 12px Quicksand,sans-serif'; ctx.textAlign='center'; ctx.fillText('×'+S.proj.bounces, S.proj.x, S.proj.y-12); }
+      else { ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(S.proj.x,S.proj.y,5,0,7); ctx.fill(); }
+    }
     if(S.expl){ ctx.fillStyle='rgba(244,140,40,.85)'; ctx.beginPath(); ctx.arc(S.expl.x,S.expl.y,S.expl.r,0,7); ctx.fill();
       ctx.fillStyle='rgba(255,220,120,.9)'; ctx.beginPath(); ctx.arc(S.expl.x,S.expl.y,S.expl.r*0.5,0,7); ctx.fill(); }
     hud();
-    if(S.mode==='start') overlayPanel('DAD vs ARCHY', ['Take turns firing your tank — first to '+WIN_TO+' hits wins!','← → aim · ↑ ↓ power · SPACE fire (or use the buttons)','Press SPACE or tap to start']);
+    if(S.mode==='start') overlayPanel('DAD vs ARCHY', ['Take turns — first to '+WIN_TO+' hits wins!','← → aim · ↑ ↓ power · SPACE fire · B = 💣 Bouncy Bomb','The Bouncy Bomb bounces off the ground, growing stronger each bounce!','Press SPACE or tap to start']);
     if(S.mode==='over') overlayPanel((S.winner==='Archy'?'🏆 Archy wins!':'🏆 Dad wins!'), ['Final: Archy '+S.scoreA+' — '+S.scoreD+' Dad','Press SPACE or tap to play again']);
   }
 
