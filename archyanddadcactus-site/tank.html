@@ -44,9 +44,10 @@
       <button id="dAngPlus">Angle +</button>
       <button id="dPowMinus">Power −</button>
       <button id="dPowPlus">Power +</button>
+      <button id="dWeapon">Shot: Normal</button>
       <button id="dFire" class="fire">🔥 FIRE</button>
     </div>
-    <p class="dva-key">Keyboard: <b>← →</b> aim · <b>↑ ↓</b> power · <b>SPACE</b> fire. Players take turns on the same keyboard.</p>
+    <p class="dva-key">Keyboard: <b>← →</b> aim · <b>↑ ↓</b> power · <b>SPACE</b> fire · <b>B</b> = change weapon (Normal · 💣 Bouncy · ✸ Cluster · ☢️ Nuke · 🔫 MG). Players take turns on the same keyboard.</p>
   </div>
 </section>
 
@@ -79,7 +80,7 @@
   </div>
 </footer>
 
-<script src="js/dva.js?v=2"></script>
+<script src="js/dva.js?v=5"></script>
 <script>
   (function(){
     function hold(id, downFn, upFn){
@@ -94,6 +95,7 @@
     hold('dPowMinus', ()=>window.DVA&&DVA.pow(-1), ()=>window.DVA&&DVA.powStop());
     hold('dPowPlus',  ()=>window.DVA&&DVA.pow(1),  ()=>window.DVA&&DVA.powStop());
     const f=document.getElementById('dFire'); if(f) f.addEventListener('click', ()=>window.DVA&&DVA.fire());
+    const wb=document.getElementById('dWeapon'); if(wb) wb.addEventListener('click', ()=>{ const w=window.DVA&&DVA.weapon(); wb.textContent='Shot: '+(w==='bounce'?'💣 Bouncy':(w==='cluster'?'✸ Cluster':(w==='nuke'?'☢️ Nuke':(w==='mg'?'🔫 MG':'Normal')))); });
   })();
 </script>
 </body>
