@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Archy &amp; Dad Mushroom Co. — Grow gourmet mushrooms together</title>
-<meta name="description" content="Grow gourmet mushrooms from spore to supper in a jar. A fast, fun, edible father-and-son grow kit from Archy & Dad. Strictly culinary species — grow dinner, not drugs.">
+<meta name="description" content="Grow gourmet mushrooms from spore to supper in a jar. A fast, fun, edible father-and-son grow kit from Archy & Dad. Play Match the Mushrooms for kit discounts and free shipping.">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=19">
+<link rel="stylesheet" href="css/style.css?v=20">
 </head>
 <body class="mushroom">
 <header class="nav">
@@ -27,12 +27,10 @@
   </div>
 </header>
 
-<div class="banner" style="background:#b5764a">🍄 Launching alongside Cactus Co — join the waitlist for first dibs on the first batch!</div>
+<div class="banner" style="background:#b5764a">🍄 Match the Mushrooms — grab the 🏷️ reward cards for kit discounts &amp; top the high score for free shipping! &nbsp;·&nbsp; <a href="contact.html" style="color:#fff;text-decoration:underline">Join the waitlist</a></div>
 
-<section style="padding-top:30px">
-  <div class="wrap mg-wrap">
-    <h2 class="center" style="color:#7a4a28;margin-bottom:6px">🍄 Match the Mushrooms</h2>
-    <p class="center muted" style="margin:0 auto 20px;max-width:540px">Our little memory game: the cards flash, then flip face-down — find every matching mushroom. Each round adds two more cards. Match the 🏷️ reward cards to unlock discounts, and set a high score for free shipping!</p>
+<section class="top-game">
+  <div class="wrap game-area">
     <div class="mg-frame">
       <div id="mgToast" class="mg-toast"></div>
       <div class="mg-hud">
@@ -45,36 +43,35 @@
       <div id="mgOverlay" class="mg-overlay"><div id="mgOv"></div></div>
     </div>
 
-    <div id="mgReward" class="mg-reward-badge" style="display:none"></div>
-
-    <div class="reward-cards" style="margin-top:18px">
-      <div class="rc"><div class="ic">🏷️</div><h4>5% off</h4><p class="muted">Match the reward card that appears in <strong>round 4</strong>.</p></div>
-      <div class="rc"><div class="ic">🏷️</div><h4>+5% off</h4><p class="muted">Another reward card waits in <strong>round 15</strong>.</p></div>
-      <div class="rc"><div class="ic">🚚</div><h4>Free shipping</h4><p class="muted">Set a new high score.</p></div>
-    </div>
-    <div class="note" style="background:rgba(181,118,74,.16)">Percentage discounts stack up to <strong>10% off your mushroom kit</strong>; <strong>free shipping</strong> applies to your <strong>whole order</strong>. We’ll apply your rewards when kits launch. 🍄</div>
-  </div>
-</section>
-
-<section class="hero">
-  <div class="wrap">
-    <div>
-      <h1 style="color:#7a4a28">Archy &amp; Dad Mushroom Co.</h1>
-      <p class="lead">If the cactus is the slow grow, mushrooms are the fast one. Sow, mist, and watch gourmet mushrooms burst out of the jar in a week or two — then pick them, fry them, and eat dinner you grew yourselves.</p>
-      <div class="cta">
-        <a class="btn" style="background:#b5764a;color:#fff;box-shadow:0 5px 0 #7a4a28" href="contact.html">Join the waitlist 🍄</a>
-        <a class="btn outline" style="box-shadow:inset 0 0 0 2px #b5764a;color:#7a4a28" href="cactus.html">See Cactus Co 🌵</a>
+    <div class="intro-panel">
+      <div class="mascot">
+        <div id="mushBubble" class="bubble"></div>
+        <img class="hero-logo" src="assets/mushroom-logo.png" alt="Archy and Dad mushroom mascots">
       </div>
     </div>
-    <div class="hero-art">
-      <img src="assets/mushroom-logo.png" alt="Archy & Dad Mushroom Co. mascots" style="width:min(320px,80vw)">
-    </div>
   </div>
 </section>
 
+<section class="info" style="padding-top:30px">
+  <div class="wrap">
+    <div class="panel lb-panel">
+      <h3>🏆 High Scores</h3>
+      <ol class="lb-list" id="mlbList"><li class="muted" style="justify-content:center">Loading…</li></ol>
+      <p class="muted" id="mlbMode" style="font-size:12px;margin-top:10px;text-align:center"></p>
+    </div>
 
+    <div id="mgReward" class="mg-reward-badge" style="display:none"></div>
 
-<section>
+    <div class="reward-cards">
+      <div class="rc"><div class="ic">🏷️</div><h4>5% off</h4><p class="muted">Match the reward card that appears in <strong>round 4</strong>.</p></div>
+      <div class="rc"><div class="ic">🏷️</div><h4>+5% off</h4><p class="muted">Another reward card waits in <strong>round 15</strong>.</p></div>
+      <div class="rc"><div class="ic">🚚</div><h4>Free shipping</h4><p class="muted">Set a new high score on the board.</p></div>
+    </div>
+    <div class="note" style="background:rgba(181,118,74,.16)">Percentage discounts stack up to <strong>10% off your mushroom kit</strong>; <strong>free shipping</strong> (for topping the board) applies to your <strong>whole order</strong>. We’ll apply your rewards when kits launch. 🍄</div>
+  </div>
+</section>
+
+<section style="background:var(--cream-2)">
   <div class="wrap" style="max-width:760px">
     <h2>The fast, fun grow</h2>
     <p>Cactus teaches patience. Mushrooms teach the opposite — instant, dramatic payoff. From a quiet jar of substrate, tiny pins appear almost overnight and then double in size every day until a full cluster spills out of the lid. For a kid, it's pure magic: there's something new to see every single morning, and at the end you get to <strong>eat what you grew</strong>.</p>
@@ -97,7 +94,7 @@
   </div>
 </section>
 
-<section style="background:var(--cream-2)">
+<section class="center">
   <div class="wrap center">
     <h2>How the grow works</h2>
     <div class="steps">
@@ -117,12 +114,28 @@
         <div class="brand" style="color:#fff"><span class="logo" style="background:#b5764a">🍄</span> Archy &amp; Dad Mushroom Co.</div>
         <p style="margin-top:10px;max-width:280px;opacity:.85">Father-and-son grown, in Australia. Gourmet mushrooms, from spore to supper.</p>
       </div>
-      <div><strong>Mushroom Co</strong><br><a href="contact.html">Join the waitlist</a><br><a href="mushroom.html#play">How it works</a></div>
+      <div><strong>Mushroom Co</strong><br><a href="contact.html">Join the waitlist</a><br><a href="mushroom.html">Play the game</a></div>
       <div><strong>More</strong><br><a href="index.html">Archy &amp; Dad home</a><br><a href="cactus.html">🌵 Cactus Co</a></div>
     </div>
     <div class="small">© 2026 Archy &amp; Dad Mushroom Co. · archyanddad.com.au · ABN [your ABN here]</div>
   </div>
 </footer>
-<script src="js/mushroom-game.js?v=3"></script>
+
+<script src="js/mleaderboard.js?v=1"></script>
+<script src="js/mushroom-game.js?v=4"></script>
+<script>
+  const mlbList=document.getElementById('mlbList');
+  function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  window.renderMLB = async function(){
+    if(!mlbList) return;
+    try{
+      const rows = await MLeaderboard.top(10);
+      if(!rows || !rows.length){ mlbList.innerHTML='<li class="muted" style="justify-content:center">No scores yet — be the first!</li>'; return; }
+      mlbList.innerHTML = rows.map((r,i)=>`<li><span class="rank">${i+1}</span><span class="nm">${escapeHtml(r.name)}</span><span class="sc">${r.score}</span></li>`).join('');
+    }catch(e){ mlbList.innerHTML='<li class="muted" style="justify-content:center">Couldn’t load scores.</li>'; }
+  };
+  if(!MLeaderboard.isOnline()){ const m=document.getElementById('mlbMode'); if(m) m.textContent='Scores save on this device. Enable the global board in js/mleaderboard.js.'; }
+  renderMLB();
+</script>
 </body>
 </html>
