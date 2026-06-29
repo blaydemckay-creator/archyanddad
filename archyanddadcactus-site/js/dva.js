@@ -10,7 +10,7 @@
   const WIN_TO = 3;
   const ARCHY = { name:'Archy', x:120, body:'#e0473c', cap:'#2c2c2c', dir:1 };
   const DAD   = { name:'Dad',   x:W-120, body:'#f08a24', cap:'#e07b16', dir:-1 };
-  const WEAPONS=['normal','bounce','cluster'];
+  const WEAPONS=['normal','bounce','cluster','nuke','mg'];
 
   let terrain = [];
   const S = {
@@ -19,7 +19,7 @@
     angle:45, power:55, wind:0,
     scoreA:0, scoreD:0,
     shots:[], flashes:[], turnHit:false,
-    winner:'', weapon:'normal',
+    winner:'', weapon:'normal', nuke:null, nukeResult:null,
     aDir:0, pDir:0
   };
 
@@ -53,7 +53,7 @@
   function startMatch(){
     S.scoreA=0; S.scoreD=0; S.turn='archy'; S.winner='';
     genTerrain(); placeTanks(); newWind();
-    S.angle=45; S.power=55; S.shots=[]; S.flashes=[]; S.turnHit=false; S.weapon='normal';
+    S.angle=45; S.power=55; S.shots=[]; S.flashes=[]; S.turnHit=false; S.weapon='normal'; S.nuke=null; S.nukeResult=null;
     S.mode='aim';
   }
 
@@ -67,9 +67,11 @@
     if(S.mode!=='aim') return;
     const t=activeTank(); const b=barrelTip(t); const v=S.power*9;
     S.turnHit=false;
+    if(S.weapon==='mg'){ S.shots=[]; S.mgTime=0; S.mgCD=0; S.mode='mg'; return; }
     const base={ x:b.x, y:b.y, vx:b.ux*v, vy:b.uy*v };
     if(S.weapon==='bounce') S.shots=[Object.assign({},base,{kind:'bounce',bounces:0})];
     else if(S.weapon==='cluster') S.shots=[Object.assign({},base,{kind:'cluster',split:false})];
+    else if(S.weapon==='nuke') S.shots=[Object.assign({},base,{kind:'nuke'})];
     else S.shots=[Object.assign({},base,{kind:'normal'})];
     S.mode='fire';
   }
@@ -77,7 +79,7 @@
   function explode(x,y,max,hit){ S.flashes.push({x:x,y:y,r:4,max:max}); carveCrater(x,y,max); if(hit) S.turnHit=true; }
 
   function toggleWeapon(){ if(S.mode!=='aim') return; const i=WEAPONS.indexOf(S.weapon); S.weapon=WEAPONS[(i+1)%WEAPONS.length]; }
-  function weaponLabel(w){ return w==='bounce'?'💣 Bouncy Bomb':(w==='cluster'?'✸ Cluster Bomb':'Normal'); }
+  function weaponLabel(w){ return w==='bounce'?'💣 Bouncy Bomb':(w==='cluster'?'✸ Cluster Bomb':(w==='nuke'?'☢️ Nuke (hit=win, miss=both lose!)':(w==='mg'?'🔫 Machine Gun (4s burst)':'Normal'))); }
 
   function endShot(hit){
     if(hit){
@@ -115,6 +117,47 @@
 
   // ---------- update ----------
   let last=performance.now();
+  function stepShots(dt){
+    const next=[];
+    for(const sh of S.shots){
+      sh.vy += 560*dt; sh.vx += S.wind*dt; sh.x += sh.vx*dt; sh.y += sh.vy*dt;
+      if(sh.kind==='cluster' && !sh.split && sh.vy>=0){
+        for(let k=-2;k<=2;k++) next.push({kind:'frag', x:sh.x, y:sh.y, vx:sh.vx*0.6+k*70, vy:sh.vy-60});
+        continue;
+      }
+      const en=enemyTank();
+      const hitR = sh.kind==='bounce' ? (12+sh.bounces*5) : (sh.kind==='frag'?18:(sh.kind==='nuke'?30:(sh.kind==='mg'?13:24)));
+      if(Math.hypot(sh.x-en.x, sh.y-(en.y-14))<hitR){
+        const max = sh.kind==='bounce'?Math.min(100,22+sh.bounces*9):(sh.kind==='frag'?26:(sh.kind==='nuke'?120:(sh.kind==='mg'?10:42)));
+        explode(sh.x, sh.y, max, true); if(sh.kind==='nuke') S.nuke='win'; continue;
+      }
+      if(sh.x<-30||sh.x>W+30){ if(sh.kind==='nuke') S.nuke='miss'; continue; }
+      if(sh.y>=groundY(sh.x)){
+        if(sh.kind==='bounce'){
+          sh.bounces++;
+          const xi=Math.round(sh.x);
+          let nx=(groundY(Math.min(W-1,xi+3))-groundY(Math.max(0,xi-3)))/6, ny=-1;
+          const nl=Math.hypot(nx,ny)||1; nx/=nl; ny/=nl;
+          const dot=sh.vx*nx+sh.vy*ny;
+          sh.vx=(sh.vx-2*dot*nx)*0.68; sh.vy=(sh.vy-2*dot*ny)*0.68;
+          sh.y=groundY(sh.x)-4;
+          if(Math.hypot(sh.vx,sh.vy)<60 || sh.bounces>16){ explode(sh.x,groundY(sh.x),16,false); continue; }
+          next.push(sh); continue;
+        } else {
+          const max=(sh.kind==='frag'?26:(sh.kind==='nuke'?70:(sh.kind==='mg'?8:42)));
+          explode(sh.x, Math.min(sh.y,groundY(sh.x)), max, false); if(sh.kind==='nuke') S.nuke='miss'; continue;
+        }
+      }
+      next.push(sh);
+    }
+    S.shots=next;
+  }
+  function spawnMG(){
+    const t=activeTank(); const b=barrelTip(t); const v=Math.max(60,S.power*9);
+    const j=(Math.random()*2-1)*0.05;
+    const ux=b.ux*Math.cos(j)-b.uy*Math.sin(j), uy=b.ux*Math.sin(j)+b.uy*Math.cos(j);
+    S.shots.push({kind:'mg', x:b.x, y:b.y, vx:ux*v, vy:uy*v});
+  }
   function step(now){
     const dt=Math.min(0.04,(now-last)/1000); last=now;
 
@@ -123,42 +166,23 @@
     if(S.mode==='aim'){
       S.angle=Math.max(15,Math.min(85,S.angle+S.aDir*55*dt));
       S.power=Math.max(10,Math.min(100,S.power+S.pDir*42*dt));
+    } else if(S.mode==='mg'){
+      S.angle=Math.max(15,Math.min(85,S.angle+S.aDir*55*dt));
+      S.power=Math.max(10,Math.min(100,S.power+S.pDir*42*dt));
+      S.mgTime+=dt;
+      if(S.mgTime<4){ S.mgCD-=dt; if(S.mgCD<=0){ spawnMG(); S.mgCD=0.08; } }
+      stepShots(dt);
+      if(S.mgTime>=4 && S.shots.length===0) S.mode='resolve';
     } else if(S.mode==='fire'){
-      const next=[];
-      for(const sh of S.shots){
-        sh.vy += 560*dt; sh.vx += S.wind*dt; sh.x += sh.vx*dt; sh.y += sh.vy*dt;
-        if(sh.kind==='cluster' && !sh.split && sh.vy>=0){
-          for(let k=-2;k<=2;k++) next.push({kind:'frag', x:sh.x, y:sh.y, vx:sh.vx*0.6+k*70, vy:sh.vy-60});
-          continue;
-        }
-        const en=enemyTank();
-        const hitR = sh.kind==='bounce' ? (12+sh.bounces*5) : (sh.kind==='frag'?18:24);
-        if(Math.hypot(sh.x-en.x, sh.y-(en.y-14))<hitR){
-          const max = sh.kind==='bounce'?Math.min(100,22+sh.bounces*9):(sh.kind==='frag'?26:42);
-          explode(sh.x, sh.y, max, true); continue;
-        }
-        if(sh.x<-30||sh.x>W+30) continue;
-        if(sh.y>=groundY(sh.x)){
-          if(sh.kind==='bounce'){
-            sh.bounces++;
-            const xi=Math.round(sh.x);
-            let nx=(groundY(Math.min(W-1,xi+3))-groundY(Math.max(0,xi-3)))/6, ny=-1;
-            const nl=Math.hypot(nx,ny)||1; nx/=nl; ny/=nl;
-            const dot=sh.vx*nx+sh.vy*ny;
-            sh.vx=(sh.vx-2*dot*nx)*0.68; sh.vy=(sh.vy-2*dot*ny)*0.68;
-            sh.y=groundY(sh.x)-4;
-            if(Math.hypot(sh.vx,sh.vy)<60 || sh.bounces>16){ explode(sh.x,groundY(sh.x),16,false); continue; }
-            next.push(sh); continue;
-          } else {
-            explode(sh.x, Math.min(sh.y,groundY(sh.x)), sh.kind==='frag'?26:42, false); continue;
-          }
-        }
-        next.push(sh);
-      }
-      S.shots=next;
+      stepShots(dt);
       if(S.shots.length===0) S.mode='resolve';
     } else if(S.mode==='resolve'){
-      if(S.flashes.length===0){ placeTanks(); endShot(S.turnHit); }
+      if(S.flashes.length===0){
+        placeTanks();
+        if(S.nuke==='win'){ S.winner=(S.turn==='archy'?'Archy':'Dad'); S.nukeResult='win'; S.nuke=null; S.mode='over'; }
+        else if(S.nuke==='miss'){ S.winner='Nobody'; S.nukeResult='miss'; S.nuke=null; S.mode='over'; }
+        else endShot(S.turnHit);
+      }
     }
     draw();
     requestAnimationFrame(step);
@@ -189,6 +213,8 @@
       ctx.fillStyle='#2f6fb0'; ctx.font='800 12px Quicksand,sans-serif'; ctx.textAlign='center'; ctx.fillText('×'+sh.bounces, sh.x, sh.y-12); }
     else if(sh.kind==='cluster'){ ctx.fillStyle='#5a3a8a'; ctx.beginPath(); ctx.arc(sh.x,sh.y,7,0,7); ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke(); }
     else if(sh.kind==='frag'){ ctx.fillStyle='#7a4fae'; ctx.beginPath(); ctx.arc(sh.x,sh.y,4,0,7); ctx.fill(); }
+    else if(sh.kind==='mg'){ ctx.fillStyle='#f4c95d'; ctx.beginPath(); ctx.arc(sh.x,sh.y,3,0,7); ctx.fill(); }
+    else if(sh.kind==='nuke'){ ctx.fillStyle='#c62828'; ctx.beginPath(); ctx.arc(sh.x,sh.y,8,0,7); ctx.fill(); ctx.strokeStyle='#ffd43b'; ctx.lineWidth=2.5; ctx.stroke(); ctx.fillStyle='#fff'; ctx.font='800 11px Quicksand,sans-serif'; ctx.textAlign='center'; ctx.fillText('☢', sh.x, sh.y+4); }
     else { ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(sh.x,sh.y,5,0,7); ctx.fill(); }
   }
   function hud(){
@@ -196,13 +222,14 @@
     ctx.fillStyle=ARCHY.body; ctx.fillText('Archy  '+S.scoreA, 16, 26);
     ctx.textAlign='right'; ctx.fillStyle=DAD.body; ctx.fillText(S.scoreD+'  Dad', W-16, 26);
     ctx.textAlign='center';
-    if(S.mode==='aim'||S.mode==='fire'||S.mode==='resolve'){
+    if(S.mode==='aim'||S.mode==='fire'||S.mode==='resolve'||S.mode==='mg'){
       ctx.fillStyle='#33402e'; ctx.font='800 15px Quicksand, sans-serif';
       ctx.fillText((S.turn==='archy'?'Archy':'Dad')+'’s turn', W/2, 22);
       const dir=S.wind>0?'→':(S.wind<0?'←':'·');
       ctx.fillText('Wind '+dir+' '+Math.abs(S.wind), W/2, 42);
-      ctx.fillStyle=S.weapon==='normal'?'#33402e':(S.weapon==='bounce'?'#2f6fb0':'#5a3a8a');
+      ctx.fillStyle=S.weapon==='normal'?'#33402e':(S.weapon==='bounce'?'#2f6fb0':(S.weapon==='nuke'?'#c62828':'#5a3a8a'));
       ctx.fillText('Shot: '+weaponLabel(S.weapon), W/2, 60);
+      if(S.mode==='mg'){ ctx.fillStyle='#b5683f'; ctx.fillText('🔫 Firing! '+Math.max(0,Math.ceil(4-S.mgTime))+'s — sweep the turret!', W/2, 78); }
     }
     if(S.mode==='aim'){
       const t=activeTank();
@@ -220,14 +247,18 @@
   }
   function draw(){
     sky(); drawTerrain();
-    drawTank(ARCHY, S.turn==='archy' && S.mode==='aim');
-    drawTank(DAD,   S.turn==='dad'   && S.mode==='aim');
+    drawTank(ARCHY, S.turn==='archy' && (S.mode==='aim'||S.mode==='mg'));
+    drawTank(DAD,   S.turn==='dad'   && (S.mode==='aim'||S.mode==='mg'));
     for(const sh of S.shots) drawShot(sh);
     for(const f of S.flashes){ ctx.fillStyle='rgba(244,140,40,.85)'; ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,7); ctx.fill();
       ctx.fillStyle='rgba(255,220,120,.9)'; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*0.5,0,7); ctx.fill(); }
     hud();
-    if(S.mode==='start') overlayPanel('DAD vs ARCHY', ['Take turns — first to '+WIN_TO+' hits wins!','← → aim · ↑ ↓ power · SPACE fire · B = change weapon','Weapons: Normal · 💣 Bouncy (grows each bounce) · ✸ Cluster (splits into 5)','Press SPACE or tap to start']);
-    if(S.mode==='over') overlayPanel((S.winner==='Archy'?'🏆 Archy wins!':'🏆 Dad wins!'), ['Final: Archy '+S.scoreA+' — '+S.scoreD+' Dad','Press SPACE or tap to play again']);
+    if(S.mode==='start') overlayPanel('DAD vs ARCHY', ['Take turns — first to '+WIN_TO+' hits wins!','← → aim · ↑ ↓ power · SPACE fire · B = change weapon','Weapons: Normal · 💣 Bouncy · ✸ Cluster · ☢️ Nuke · 🔫 Machine Gun','🔫 MG fires for 4s — sweep the turret! ☢️ Nuke: hit = instant win, miss = both lose','Press SPACE or tap to start']);
+    if(S.mode==='over'){
+      if(S.nukeResult==='win') overlayPanel('☢️ DIRECT NUKE!', [S.winner+' wins instantly!','Press SPACE or tap to play again']);
+      else if(S.nukeResult==='miss') overlayPanel('☢️ NUKE MISSED!', ['Everybody loses — no winner this time!','Press SPACE or tap to play again']);
+      else overlayPanel((S.winner==='Archy'?'🏆 Archy wins!':'🏆 Dad wins!'), ['Final: Archy '+S.scoreA+' — '+S.scoreD+' Dad','Press SPACE or tap to play again']);
+    }
   }
 
   requestAnimationFrame(step);
