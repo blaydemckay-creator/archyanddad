@@ -103,6 +103,37 @@
 
   function toast(msg){ if(!toastEl) return; toastEl.textContent=msg; toastEl.classList.add('show'); clearTimeout(toastEl._t); toastEl._t=setTimeout(()=>toastEl.classList.remove('show'),1700); }
 
+  const M_START=[
+    "Press Start — match the mushrooms! 🍄",
+    "Match the 🏷️ card in round 4 for 5% off!",
+    "Top the high score for free shipping! 🚚"
+  ];
+  const M_TIPS=[
+    "Oyster mushrooms grow on used coffee grounds! ☕",
+    "Lion’s Mane looks like a fuzzy white pom-pom!",
+    "Mushrooms fruit in days — way faster than a cactus 🍄",
+    "Mist them daily and they pop up almost overnight!",
+    "Keep your grow jar out of direct sun.",
+    "Some gourmet mushrooms double in size every day!",
+    "Shiitake love a humid jar — but give ’em fresh air too.",
+    "Find two of the same to clear them — you’ve got this!"
+  ];
+  const M_OVER=[
+    "Good growing! Have another go 🍄",
+    "Top the score for free shipping! 🚚",
+    "Your memory gets sharper every run!"
+  ];
+  function showBubble(text, ms){
+    const el=document.getElementById('mushBubble'); if(!el) return;
+    el.innerHTML='<span class="who">Archy:</span> '+text;
+    el.classList.add('show');
+    if(showBubble._t) clearTimeout(showBubble._t);
+    if(ms) showBubble._t=setTimeout(()=>el.classList.remove('show'), ms);
+  }
+  let tipTimer=null;
+  function startTips(){ stopTips(); if(typeof setInterval!=='function') return; tipTimer=setInterval(()=>{ if(S.active && !S.busy) showBubble(M_TIPS[Math.floor(Math.random()*M_TIPS.length)], 4500); }, 6500); }
+  function stopTips(){ if(tipTimer && typeof clearInterval==='function'){ clearInterval(tipTimer); } tipTimer=null; }
+
   const S = { round:1, score:0, lives:5, deck:[], flipped:[], busy:false,
               matched:0, boardsCleared:0, active:false, bestAtStart:0 };
 
@@ -173,7 +204,8 @@
           S.deck[a].matched = S.deck[b].matched = true;
           S.deck[a].el.classList.add('matched'); S.deck[b].el.classList.add('matched');
           S.matched += 1; S.score += 50;
-          if(S.deck[a].reward){ const t=bankDiscount(S.deck[a].reward); toast('🏷️ '+S.deck[a].reward+'% off your mushroom kit unlocked!'); }
+          if(S.deck[a].reward){ bankDiscount(S.deck[a].reward); toast('🏷️ '+S.deck[a].reward+'% off your mushroom kit unlocked!'); showBubble('🏷️ '+S.deck[a].reward+'% off your mushroom kit!', 3200); }
+          else if(Math.random()<0.35){ showBubble('Nice pair! 🍄', 2200); }
           S.flipped = []; S.busy = false; setHud();
           if(S.matched === S.deck.length/2) boardClear();
         }, 360);
@@ -194,6 +226,7 @@
     S.score += S.round*40;
     S.lives = Math.min(9, S.lives+2);
     setHud();
+    showBubble('Board cleared! Two more cards… 🍄', 2600);
     setTimeout(()=>{ S.round += 1; newBoard(); }, 700);
   }
 
@@ -203,16 +236,29 @@
   function startGame(){
     S.round=1; S.score=0; S.lives=5; S.boardsCleared=0; S.active=true; S.bestAtStart=best;
     hideOverlay(); newBoard();
+    showBubble(M_START[Math.floor(Math.random()*M_START.length)], 0); startTips();
   }
 
   function gameOver(){
-    S.active=false; setHud();
+    S.active=false; setHud(); stopTips();
     let ship='';
     if(S.score>S.bestAtStart && S.score>0){ if(bankShipping()) ship='<br>🚚 New high score — <strong>free shipping on your whole order</strong> unlocked!'; }
+    showBubble(M_OVER[Math.floor(Math.random()*M_OVER.length)], 0);
     showOverlay('<div class="mg-ovcard"><h3>Out of guesses! 🍄</h3>'+
-      '<p>You reached <strong>round '+S.round+'</strong> and scored <strong>'+S.score+'</strong>.<br>Best: '+best+ship+'</p>'+
+      '<p>Round <strong>'+S.round+'</strong> &nbsp;·&nbsp; ⭐ <strong>'+S.score+'</strong> &nbsp;·&nbsp; Best '+best+ship+'</p>'+
+      '<div class="namebox"><input id="mgName" maxlength="16" placeholder="Your name for the board"><button class="btn green" id="mgSave" style="padding:11px 20px">Save score</button></div>'+
+      '<div class="hint" id="mgSaveMsg" style="opacity:.85"></div>'+
       '<button class="btn" id="mgPlay">Play again</button></div>');
-    const b=document.getElementById('mgPlay'); if(b) b.addEventListener('click', startGame);
+    const pb=document.getElementById('mgPlay'); if(pb) pb.addEventListener('click', startGame);
+    const sb=document.getElementById('mgSave');
+    if(sb) sb.addEventListener('click', async ()=>{
+      const nm=(document.getElementById('mgName').value||'').trim()||'Anonymous';
+      const msg=document.getElementById('mgSaveMsg'); if(msg) msg.textContent='Saving…';
+      try{ if(window.MLeaderboard) await window.MLeaderboard.submit(nm, S.score); }catch(e){}
+      if(msg) msg.textContent='Saved! 🍄';
+      if(window.renderMLB) window.renderMLB();
+      sb.disabled=true;
+    });
   }
 
   function startInput(e){
@@ -229,4 +275,5 @@
     '<p>The cards flash, then flip face-down — find every matching pair! Each round adds two more cards. Match the 🏷️ reward card in rounds 4 &amp; 15 for discounts, and set a high score for free shipping — all toward your mushroom kit.</p>'+
     '<button class="btn" id="mgStart">Start growing</button></div>');
   (function(){ const b=document.getElementById('mgStart'); if(b) b.addEventListener('click', startGame); })();
+  showBubble(M_START[0], 0);
 })();
