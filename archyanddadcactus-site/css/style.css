@@ -284,3 +284,19 @@ body.mushroom .brand{color:#7a4a28;}
 .mg-overlay .btn{background:#f4c95d;color:#5a3a12;box-shadow:0 5px 0 #c79a36;}
 .mg-bonusC{background:#cfeafe;border-radius:14px;display:block;margin:6px auto 12px;width:100%;max-width:440px;}
 .mg-ovcard{max-width:480px;width:100%;}
+
+/* ===== Mushroom memory game v2: sized cards, art, rewards ===== */
+.mg-board{justify-content:center;}
+.mg-front{padding:4px;gap:2px;}
+.mg-front .pic{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0;}
+.mg-front .pic svg{height:100%;width:auto;max-width:92%;}
+.mg-front .nm{font-size:11px;line-height:1.1;font-weight:800;}
+.mg-front.reward{background:linear-gradient(135deg,#f6cf5a,#ec9f2c);color:#5a3a12;}
+.mg-front.reward .rtag{font-size:30px;line-height:1;}
+.mg-toast{position:absolute;left:50%;top:12px;transform:translateX(-50%) translateY(-8px);
+  background:#5a8a4e;color:#fff;font-weight:800;padding:9px 16px;border-radius:30px;
+  box-shadow:0 10px 24px rgba(0,0,0,.25);opacity:0;transition:opacity .25s,transform .25s;
+  z-index:9;pointer-events:none;text-align:center;max-width:88%;font-size:14px;}
+.mg-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.mg-reward-badge{background:rgba(181,118,74,.14);border:2px solid rgba(181,118,74,.32);
+  border-radius:14px;padding:12px 16px;text-align:center;font-weight:700;color:#7a4a28;margin-top:16px;}
