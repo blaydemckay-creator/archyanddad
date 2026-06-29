@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=18">
+<link rel="stylesheet" href="css/style.css?v=19">
 </head>
 <body class="mushroom">
 <header class="nav">
@@ -32,8 +32,9 @@
 <section style="padding-top:30px">
   <div class="wrap mg-wrap">
     <h2 class="center" style="color:#7a4a28;margin-bottom:6px">🍄 Match the Mushrooms</h2>
-    <p class="center muted" style="margin:0 auto 20px;max-width:540px">Our little memory game: the cards flash, then flip face-down — find every pair. Each round adds two more cards, and every 3 boards cleared triggers a bonus round!</p>
+    <p class="center muted" style="margin:0 auto 20px;max-width:540px">Our little memory game: the cards flash, then flip face-down — find every matching mushroom. Each round adds two more cards. Match the 🏷️ reward cards to unlock discounts, and set a high score for free shipping!</p>
     <div class="mg-frame">
+      <div id="mgToast" class="mg-toast"></div>
       <div class="mg-hud">
         <span class="chip">Round <b id="mgRound">1</b></span>
         <span class="chip">⭐ <b id="mgScore">0</b></span>
@@ -43,6 +44,15 @@
       <div id="mgBoard" class="mg-board"></div>
       <div id="mgOverlay" class="mg-overlay"><div id="mgOv"></div></div>
     </div>
+
+    <div id="mgReward" class="mg-reward-badge" style="display:none"></div>
+
+    <div class="reward-cards" style="margin-top:18px">
+      <div class="rc"><div class="ic">🏷️</div><h4>5% off</h4><p class="muted">Match the reward card that appears in <strong>round 4</strong>.</p></div>
+      <div class="rc"><div class="ic">🏷️</div><h4>+5% off</h4><p class="muted">Another reward card waits in <strong>round 15</strong>.</p></div>
+      <div class="rc"><div class="ic">🚚</div><h4>Free shipping</h4><p class="muted">Set a new high score.</p></div>
+    </div>
+    <div class="note" style="background:rgba(181,118,74,.16)">Percentage discounts stack up to <strong>10% off your mushroom kit</strong>; <strong>free shipping</strong> applies to your <strong>whole order</strong>. We’ll apply your rewards when kits launch. 🍄</div>
   </div>
 </section>
 
@@ -113,6 +123,6 @@
     <div class="small">© 2026 Archy &amp; Dad Mushroom Co. · archyanddad.com.au · ABN [your ABN here]</div>
   </div>
 </footer>
-<script src="js/mushroom-game.js?v=2"></script>
+<script src="js/mushroom-game.js?v=3"></script>
 </body>
 </html>

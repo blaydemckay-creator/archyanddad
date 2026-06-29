@@ -86,9 +86,10 @@
   const KIT_PRICE = 49.95;
   // -----------------------------------------------------
   function fmt(n){ return '$'+n.toFixed(2); }
-  let reward = {discount:0, freeShipping:false};
+  let reward = {discount:0};
   try{ reward = Object.assign(reward, JSON.parse(localStorage.getItem('sps_reward')||'{}')); }catch(e){}
   const disc = Math.min(10, reward.discount||0);
+  let freeShip=false; try{ freeShip = localStorage.getItem('ad_freeship')==='1'; }catch(e){}
   const priceNow = document.getElementById('priceNow');
   const priceWas = document.getElementById('priceWas');
   const badge = document.getElementById('rewardBadge');
@@ -100,14 +101,14 @@
     priceNow.childNodes[0].nodeValue = fmt(final)+' ';
     priceWas.style.display='inline';
     priceWas.textContent = fmt(KIT_PRICE);
-    badge.innerHTML = '<span class="reward-badge">🏷️ '+disc+'% game discount applied</span>';
+    badge.innerHTML = '<span class="reward-badge">🏷️ '+disc+'% off your cactus kit</span>';
   }else{
     priceNow.childNodes[0].nodeValue = fmt(KIT_PRICE)+' ';
   }
-  if(reward.freeShipping){
-    shipLine.innerHTML = '🚚 <strong>Free shipping unlocked!</strong> (high-score reward)';
+  if(freeShip){
+    shipLine.innerHTML = '🚚 <strong>Free shipping unlocked!</strong> (applies to your whole order)';
   }
-  if(disc>0 || reward.freeShipping){
+  if(disc>0 || freeShip){
     note.style.display='block';
     note.innerHTML = 'Your game rewards are saved and will be applied automatically to your order. 🎮🌵 '
       + '<br><a href="cactus.html#play">Play again to beat your best →</a>';
